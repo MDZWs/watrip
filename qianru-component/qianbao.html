@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>钱包</title>
+  <link rel="stylesheet" href="qianbao.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 60px 40px;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="wallet">
+    <div class="wallet-back"></div>
+
+    <div class="card stripe">
+      <div class="card-inner">
+        <div class="card-top">
+          <span>Stripe</span>
+          <div class="chip"></div>
+        </div>
+        <div class="card-bottom">
+          <div class="card-info">
+            <span class="label">Holder</span>
+            <span class="value">ALEX SMITH</span>
+          </div>
+          <div class="card-number-wrapper">
+            <span class="hidden-stars">**** 4242</span>
+            <span class="card-number">5524 9910 4242</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card wise">
+      <div class="card-inner">
+        <div class="card-top">
+          <span>Wise</span>
+          <div class="chip"></div>
+        </div>
+        <div class="card-bottom">
+          <div class="card-info">
+            <span class="label">Business</span>
+            <span class="value">STUDIO LLC</span>
+          </div>
+          <div class="card-number-wrapper">
+            <span class="hidden-stars">**** 8810</span>
+            <span class="card-number">9012 4432 8810</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card paypal">
+      <div class="card-inner">
+        <div class="card-top">
+          <span>Pay<b style="color:#0079C1">Pal</b></span>
+          <div class="chip"></div>
+        </div>
+        <div class="card-bottom">
+          <div class="card-info">
+            <span class="label">Email</span>
+            <span class="value">hello@work.com</span>
+          </div>
+          <div class="card-number-wrapper">
+            <span class="hidden-stars">**** 0094</span>
+            <span class="card-number">3312 0045 0094</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pocket">
+      <svg class="pocket-svg" viewBox="0 0 280 160" fill="none">
+        <path
+          d="M 0 20 C 0 10, 5 10, 10 10 C 20 10, 25 25, 40 25 L 240 25 C 255 25, 260 10, 270 10 C 275 10, 280 10, 280 20 L 280 120 C 280 155, 260 160, 240 160 L 40 160 C 20 160, 0 155, 0 120 Z"
+          fill="#1e341e"
+        ></path>
+        <path
+          d="M 8 22 C 8 16, 12 16, 15 16 C 23 16, 27 29, 40 29 L 240 29 C 253 29, 257 16, 265 16 C 268 16, 272 16, 272 22 L 272 120 C 272 150, 255 152, 240 152 L 40 152 C 25 152, 8 152, 8 120 Z"
+          stroke="#3d5635"
+          stroke-width="1.5"
+          stroke-dasharray="6 4"
+        ></path>
+      </svg>
+      <div class="pocket-content">
+        <div style="position: relative; height: 24px; width: 100%;">
+          <div class="balance-stars">******</div>
+          <div class="balance-real">$12,450.00</div>
+        </div>
+        <div style="color: #698263; font-size: 12px; font-weight: 500;">
+          Total Balance
+        </div>
+        <div class="eye-icon-wrapper" id="eyeToggle">
+          <svg
+            class="eye-icon eye-slash"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+            <line x1="3" y1="3" x2="21" y2="21"></line>
+          </svg>
+          <svg
+            class="eye-icon eye-open"
+            style="opacity: 0;"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function() {
+  const eyeWrapper = document.getElementById('eyeToggle');
+  const wallet = document.querySelector('.wallet');
+  let balanceLocked = false;
+
+  eyeWrapper.addEventListener('click', (e) => {
+    e.stopPropagation();
+    balanceLocked = !balanceLocked;
+    if (balanceLocked) {
+      wallet.classList.add('show-balance');
+    } else {
+      wallet.classList.remove('show-balance');
+    }
+  });
+})();
+</script>
+</body>
+</html>

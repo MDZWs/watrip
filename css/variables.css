@@ -1,0 +1,130 @@
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+    --brand: #FF8A3D;
+    --orange: #FF8A3D;
+    --brand-light: #FFB983;
+    --brand-light-soft: #FFF5EE;
+    --brand-dark: #E87025;
+    --brand-gradient: linear-gradient(135deg, #FFA35C 0%, #FF8A3D 50%, #FF7020 100%);
+    --blue: #5CC6FF;
+    --blue-light: #E8F3FF;
+    --purple: #8B7CF5;
+    --purple-light: #E8E4FF;
+    --bg: #ECE9E5;
+    --card-bg: #FFFFFF;
+    --text-primary: #1A1A1A;
+    --text-secondary: #8A8A8A;
+    --text-muted: #B5B5B5;
+    --border: #EDEEF0;
+    --shadow-sm: 0 1px 4px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    --radius-xl: 32px;
+    --radius-lg: 24px;
+    --radius-md: 16px;
+    --radius-sm: 12px;
+
+    /* === 辅助色 === */
+    --accent-blue: #5CC6FF;
+    --accent-purple: #8B7CF5;
+    --accent-purple-light: #E8E4FF;
+
+    /* === 状态色 === */
+    --success: #34C759;
+    --warning: #FF9500;
+    --error: #FF3B30;
+    --info: #5AC8FA;
+
+    /* === 天气色（保留蓝色视觉，token 化便于后续调整）=== */
+    --weather-blue: #4A90D9;
+    --weather-blue-dark: #357ABD;
+    --weather-blue-light: #A8E0FF;
+    --shadow-weather: 0 4px 16px rgba(74,144,217,0.3);
+
+    /* === 分区底色 === */
+    --bg-tool: #E4E4E4;
+    --bg-content: #FAF8F4;
+
+    /* === 新拟态阴影色对 === */
+    --neu-shadow-dark: #C4C4C4;
+    --neu-shadow-light: #FFFFFF;
+    --neu-outset: 6px 6px 12px var(--neu-shadow-dark), -6px -6px 12px var(--neu-shadow-light);
+    --neu-inset: inset 4px 4px 8px var(--neu-shadow-dark), inset -4px -4px 8px var(--neu-shadow-light);
+    --neu-pressed: inset 3px 3px 6px var(--neu-shadow-dark), inset -3px -3px 6px var(--neu-shadow-light);
+
+    /* === 字体族 === */
+    --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Helvetica Neue", sans-serif;
+    --font-serif: "PingFang SC", "Noto Serif SC", serif;
+
+    /* === 字号阶梯 === */
+    --text-xs: 12px;
+    --text-sm: 14px;
+    --text-base: 16px;
+    --text-lg: 18px;
+    --text-xl: 20px;
+    --text-2xl: 24px;
+    --text-3xl: 32px;
+
+    /* === 行高 === */
+    --leading-xs: 16px;
+    --leading-sm: 20px;
+    --leading-base: 24px;
+    --leading-lg: 26px;
+    --leading-xl: 28px;
+    --leading-2xl: 32px;
+    --leading-3xl: 40px;
+
+    /* === 字重 === */
+    --font-regular: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+    --font-heavy: 800;
+
+    /* === 间距阶梯(4px 栅格) === */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 24px;
+    --space-2xl: 32px;
+    --space-3xl: 48px;
+
+    /* === 圆角补充 === */
+    --radius-pill: 999px;
+
+    /* === 动效 === */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.2s ease;
+    --transition-slow: 0.3s ease;
+    --transition-spring: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+    /* === 首页氛围 === */
+    --bg-gradient: linear-gradient(180deg, #F5F0EA 0%, #ECE9E5 100%);
+    --header-glow: radial-gradient(ellipse at top, rgba(255, 138, 61, 0.15) 0%, transparent 60%);
+    --noise-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+
+    /* === z-index 层级 === */
+    --z-toast: 10000;
+    --z-modal: 9999;
+    --z-loading: 9998;
+    --z-dropdown: 1000;
+    --z-sticky: 100;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: var(--text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+.hidden { display: none !important; }

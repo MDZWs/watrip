@@ -1,0 +1,169 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card {
+  position: relative;
+  width: 10em;
+  background: white;
+  transition: .4s ease-in-out;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.card-inner {
+  padding: 0.8em;
+  display: flex;
+  flex-direction: column;
+  min-height: 5em;
+  transition: .4s ease-in-out;
+}
+
+.heading {
+  color: #333;
+  font-weight: bold;
+  font-size: 0.9em;
+  transition: .4s ease-in-out;
+}
+
+.details {
+  color: #333;
+  font-size: 0.7em;
+  padding-top: 0.6em;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: .4s ease-in-out;
+}
+
+.template-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.template-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.5em 0.6em;
+  background: #F8F8FA;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.template-item:hover {
+  background: #FFF0E6;
+}
+
+.template-item:active {
+  background: #FFE4D0;
+}
+
+.tpl-icon {
+  font-size: 1.2em;
+}
+
+.tpl-name {
+  font-size: 1em;
+  font-weight: 500;
+  color: #333;
+}
+
+.price {
+  color: var(--brand, #FF8A3D);
+  font-weight: 600;
+  font-size: 0.75em;
+  margin-top: auto;
+  padding-top: 0.4em;
+  opacity: 0;
+  transition: .4s ease-in-out;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  padding-top: 0.6em;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: .4s ease-in-out;
+}
+
+.btn1, .btn2 {
+  border: none;
+  outline: none;
+  font-size: 0.7em;
+  padding: 0.6em 0.8em;
+  border-radius: 8px;
+  transition: .2s ease-in-out;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn1 {
+  background: linear-gradient(135deg, #FFB983, #FF8A3D);
+  color: white;
+}
+
+.btn1:hover {
+  background: linear-gradient(135deg, #FFA866, #FF7722);
+}
+
+.btn2 {
+  background: #F5F5F7;
+  color: #666;
+}
+
+.btn2:hover {
+  background: #EBEBF0;
+}
+
+.glasses {
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  width: 36px;
+  height: 36px;
+  stroke: #ccc;
+  transition: .4s ease-in-out;
+}
+
+.card:hover, .card.active {
+  width: 11em;
+}
+
+.card:hover .card-inner, .card.active .card-inner {
+  min-height: 18em;
+}
+
+.card:hover .details, .card.active .details {
+  opacity: 1;
+  max-height: 200px;
+}
+
+.card:hover .price, .card.active .price {
+  opacity: 1;
+}
+
+.card:hover .buttons, .card.active .buttons {
+  opacity: 1;
+  max-height: 80px;
+}
+
+.card:hover .glasses, .card.active .glasses {
+  width: 60px;
+  height: 60px;
+  top: 50%;
+  right: 50%;
+  transform: translate(50%, -50%) rotate(360deg);
+  opacity: 0.15;
+  stroke: #000;
+}

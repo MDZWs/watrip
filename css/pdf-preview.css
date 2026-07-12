@@ -1,0 +1,501 @@
+/* ==================== PDF 预览编辑器 ==================== */
+
+.pdf-preview-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: #E8E6E1;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+}
+.pdf-preview-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.pdf-preview-frame {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+/* ==================== 顶部工具栏 ==================== */
+.pdf-preview-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 52px;
+    background: #fff;
+    border-bottom: 1px solid #e0ddd7;
+    flex-shrink: 0;
+    gap: 12px;
+    z-index: 10;
+}
+.pdf-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+.pdf-toolbar-center {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.pdf-toolbar-right {
+    flex-shrink: 0;
+}
+.pdf-tb-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    background: transparent;
+    border: none;
+    color: #666;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s;
+}
+.pdf-tb-btn:hover {
+    background: #f5f3ef;
+    color: #333;
+}
+.pdf-tb-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+.pdf-tb-divider {
+    width: 1px;
+    height: 20px;
+    background: #e0ddd7;
+    flex-shrink: 0;
+}
+.pdf-tb-tool {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #555;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+.pdf-tb-tool:hover {
+    background: #f0ede8;
+    color: #333;
+}
+.pdf-tb-tool:active {
+    background: #e8e4de;
+}
+.pdf-tb-select {
+    height: 32px;
+    border: 1px solid #e0ddd7;
+    border-radius: 6px;
+    background: #fff;
+    color: #555;
+    font-size: 12px;
+    cursor: pointer;
+    outline: none;
+    flex-shrink: 0;
+}
+.pdf-tb-color {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e0ddd7;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #fff;
+    padding: 2px;
+    flex-shrink: 0;
+}
+.pdf-tb-export {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: linear-gradient(135deg, #FF8A3D 0%, #FFB347 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.pdf-tb-export:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+.pdf-tb-export:active {
+    opacity: 0.85;
+}
+.pdf-tb-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: pdf-spin 0.6s linear infinite;
+}
+@keyframes pdf-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 图片大小调节按钮 */
+.pdf-tb-img-size {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px;
+    background: #f5f3ef;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+.pdf-tb-img-btn {
+    padding: 4px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    color: #888;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.pdf-tb-img-btn:hover {
+    color: #555;
+}
+.pdf-tb-img-btn.active {
+    background: #fff;
+    color: #FF8A3D;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* ==================== 滚动区域（连续预览） ==================== */
+.pdf-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px 0 40px;
+    display: flex;
+    justify-content: center;
+}
+
+/* A4 纸张 */
+.pdf-paper {
+    width: 640px;
+    max-width: 100%;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.1);
+    margin: 0 auto;
+    flex-shrink: 0;
+}
+.pdf-paper-inner {
+    width: 100%;
+}
+
+/* ==================== 纸张内容样式 ==================== */
+
+/* 行程分隔（行程之间留白） */
+.pdf-trip-separator {
+    height: 20px;
+}
+
+/* 封面 */
+.pdf-paper-cover {
+    padding: 40px 36px 28px;
+    background: linear-gradient(135deg, #FFF8F0 0%, #FFFFFF 100%);
+    border-bottom: 1px solid #f0ede8;
+    position: relative;
+}
+.pdf-cover-deco {
+    width: 48px;
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #FF8A3D, #FFB347);
+    margin-bottom: 20px;
+}
+.pdf-cover-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #2c2c2c;
+    margin: 0 0 14px;
+    line-height: 1.3;
+    outline: none;
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+.pdf-cover-title:focus {
+    background: #fffbe8;
+    box-shadow: 0 0 0 2px #FFE0B2;
+}
+.pdf-cover-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 13px;
+    color: #888;
+}
+.pdf-cover-line {
+    margin-top: 20px;
+    height: 1px;
+    background: linear-gradient(90deg, #FF8A3D, transparent);
+}
+
+/* 内容区 */
+.pdf-paper-body {
+    padding: 28px 36px 36px;
+}
+
+/* 每天的行程 */
+.pdf-day {
+    margin-bottom: 28px;
+}
+.pdf-day:last-child {
+    margin-bottom: 0;
+}
+.pdf-day-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #FFF0E0;
+    margin-bottom: 16px;
+}
+.pdf-day-num {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    padding: 3px 12px;
+    background: linear-gradient(135deg, #FF8A3D, #FFB347);
+    border-radius: 12px;
+}
+.pdf-day-date {
+    font-size: 12px;
+    color: #999;
+}
+.pdf-day-theme {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+}
+.pdf-day-city {
+    font-size: 12px;
+    color: #aaa;
+}
+
+/* 景点 */
+.pdf-spot {
+    margin-bottom: 18px;
+    padding: 14px;
+    background: #FAF8F4;
+    border-radius: 10px;
+}
+.pdf-spot:last-child {
+    margin-bottom: 0;
+}
+.pdf-spot-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+.pdf-spot-emoji {
+    font-size: 16px;
+}
+.pdf-spot-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+}
+.pdf-spot-time {
+    font-size: 12px;
+    color: #aaa;
+    margin-left: auto;
+}
+
+/* 可编辑文字 */
+.pdf-note-text {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #444;
+    outline: none;
+    padding: 6px 8px;
+    border-radius: 4px;
+    min-height: 24px;
+    transition: background 0.15s;
+}
+.pdf-note-text:focus {
+    background: #fffbe8;
+    box-shadow: 0 0 0 2px #FFE0B2;
+}
+.pdf-note-text:empty::before {
+    content: attr(data-placeholder);
+    color: #ccc;
+    font-style: italic;
+}
+
+/* 图片块 */
+.pdf-photo-block {
+    margin: 10px 0;
+    position: relative;
+}
+.pdf-photo-img-wrap {
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 8px;
+}
+.pdf-photo-img-wrap.size-small {
+    max-width: 40%;
+    margin: 0 auto;
+}
+.pdf-photo-img-wrap.size-medium {
+    max-width: 70%;
+    margin: 0 auto;
+}
+.pdf-photo-img-wrap.size-large {
+    max-width: 100%;
+}
+.pdf-photo {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 8px;
+    display: block;
+}
+.pdf-photo-caption {
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+    padding: 6px 8px;
+    outline: none;
+    border-radius: 4px;
+    min-height: 20px;
+    transition: background 0.15s;
+}
+.pdf-photo-caption:focus {
+    background: #fffbe8;
+    box-shadow: 0 0 0 2px #FFE0B2;
+}
+.pdf-photo-caption:empty::before {
+    content: attr(data-placeholder);
+    color: #ddd;
+}
+
+/* 删除图片按钮 */
+.pdf-photo-delete {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 5;
+}
+.pdf-photo-block:hover .pdf-photo-delete {
+    opacity: 1;
+}
+
+/* 添加图片按钮 */
+.pdf-add-photo-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    background: transparent;
+    border: 1px dashed #ddd;
+    border-radius: 8px;
+    color: #aaa;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 8px;
+}
+.pdf-add-photo-btn:hover {
+    border-color: #FF8A3D;
+    color: #FF8A3D;
+    background: #FFF5ED;
+}
+
+/* 空状态 */
+.pdf-empty-day {
+    text-align: center;
+    padding: 20px 0;
+    font-size: 13px;
+    color: #ccc;
+}
+
+/* ==================== 移动端适配 ==================== */
+@media (max-width: 720px) {
+    .pdf-preview-toolbar {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 8px 10px;
+        gap: 6px;
+    }
+    .pdf-toolbar-left {
+        order: 1;
+        flex: 1;
+    }
+    .pdf-toolbar-right {
+        order: 2;
+    }
+    .pdf-toolbar-center {
+        order: 3;
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-top: 4px;
+    }
+    .pdf-tb-title {
+        display: none;
+    }
+    .pdf-paper {
+        width: 100%;
+        border-radius: 0;
+    }
+    .pdf-paper-cover {
+        padding: 28px 20px 20px;
+    }
+    .pdf-cover-title {
+        font-size: 22px;
+    }
+    .pdf-paper-body {
+        padding: 20px 16px 28px;
+    }
+    .pdf-spot {
+        padding: 12px 10px;
+    }
+    .pdf-photo-delete {
+        opacity: 1;
+    }
+}

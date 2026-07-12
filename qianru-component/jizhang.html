@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>记账计算器</title>
+  <link rel="stylesheet" href="jizhang.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+  </style>
+</head>
+<body>
+<div class="calculator">
+  <div class="output">
+    <span class="result">0</span>
+  </div>
+  <div class="buttons">
+    <button data-val="1">1</button>
+    <button data-val="2">2</button>
+    <button data-val="3">3</button>
+    <button data-val="+">+</button>
+    <button data-val="4">4</button>
+    <button data-val="5">5</button>
+    <button data-val="6">6</button>
+    <button data-val="-">-</button>
+    <button data-val="7">7</button>
+    <button data-val="8">8</button>
+    <button data-val="9">9</button>
+    <button data-val="*">×</button>
+    <button class="bg-red" data-val="C">C</button>
+    <button data-val="0">0</button>
+    <button class="bg-green" data-val="=">=</button>
+    <button data-val="/">÷</button>
+  </div>
+</div>
+<script>
+(function() {
+  const resultEl = document.querySelector('.result');
+  const buttons = document.querySelectorAll('.buttons button');
+  let current = '0';
+  let previous = null;
+  let operator = null;
+  let shouldReset = false;
+
+  function updateDisplay() {
+    resultEl.textContent = current;
+  }
+
+  function calculate(a, b, op) {
+    a = parseFloat(a);
+    b = parseFloat(b);
+    switch(op) {
+      case '+': return a + b;
+      case '-': return a - b;
+      case '*': return a * b;
+      case '/': return b !== 0 ? a / b : 'Error';
+      default: return b;
+    }
+  }
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = btn.dataset.val;
+      if (/[0-9]/.test(val)) {
+        if (shouldReset) {
+          current = val;
+          shouldReset = false;
+        } else {
+          current = current === '0' ? val : current + val;
+        }
+      } else if (['+', '-', '*', '/'].includes(val)) {
+        if (previous !== null && !shouldReset) {
+          const result = calculate(previous, current, operator);
+          current = String(result);
+          previous = result;
+        } else {
+          previous = parseFloat(current);
+        }
+        operator = val;
+        shouldReset = true;
+      } else if (val === '=') {
+        if (previous !== null && operator) {
+          const result = calculate(previous, current, operator);
+          current = String(result);
+          previous = null;
+          operator = null;
+          shouldReset = true;
+        }
+      } else if (val === 'C') {
+        current = '0';
+        previous = null;
+        operator = null;
+        shouldReset = false;
+      }
+      updateDisplay();
+    });
+  });
+
+  updateDisplay();
+})();
+</script>
+</body>
+</html>

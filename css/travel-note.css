@@ -1,0 +1,497 @@
+/* ============================================================
+   图文游记 - 编辑器 + 详情页 + 卡片样式
+   ============================================================ */
+
+/* ===== 编辑器遮罩 ===== */
+.note-editor-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+}
+.note-editor-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ===== 编辑器容器 ===== */
+.note-editor-wrap {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    animation: neSlideIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes neSlideIn {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.note-editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fff;
+    flex-shrink: 0;
+}
+.ne-back {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #333;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+}
+.ne-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #333;
+}
+.ne-publish {
+    background: linear-gradient(135deg, #ff8a3d, #ff6a00);
+    color: #fff;
+    border: none;
+    border-radius: 16px;
+    padding: 6px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.ne-publish:active { transform: scale(0.95); }
+
+/* ===== 编辑器主体 ===== */
+.note-editor-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.ne-title-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 22px;
+    font-weight: 700;
+    color: #222;
+    padding: 8px 0;
+    margin-bottom: 8px;
+    background: transparent;
+}
+.ne-title-input::placeholder { color: #ccc; }
+
+.ne-meta-row {
+    margin-bottom: 12px;
+}
+.ne-dest-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    color: #666;
+    padding: 6px 0;
+    background: transparent;
+    border-bottom: 1px dashed #eee;
+}
+.ne-dest-input::placeholder { color: #ccc; }
+
+/* ===== Phase 5.5：专属标签选择行 ===== */
+.ne-tag-row {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #eee;
+}
+.ne-tag-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.ne-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* ===== 自定义工具栏 ===== */
+.ne-toolbar {
+    display: flex;
+    gap: 4px;
+    padding: 8px 0;
+    border-top: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.ne-toolbar::-webkit-scrollbar { display: none; }
+.ne-tb-btn {
+    flex-shrink: 0;
+    background: #f5f5f7;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s;
+    min-width: 36px;
+}
+.ne-tb-btn:active { background: #e8e8ea; }
+
+/* ===== Quill 编辑器容器 ===== */
+.ne-quill {
+    min-height: 300px;
+    padding-bottom: 60px;
+}
+.ne-quill .ql-editor {
+    min-height: 300px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #333;
+    padding: 0;
+}
+.ne-quill .ql-editor.ql-blank::before {
+    color: #ccc;
+    font-style: normal;
+    font-size: 15px;
+    left: 0;
+    right: 0;
+}
+.ne-quill .ql-editor h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 16px 0 8px;
+    color: #222;
+}
+.ne-quill .ql-editor blockquote {
+    border-left: 3px solid #ff8a3d;
+    padding-left: 12px;
+    color: #666;
+    margin: 12px 0;
+    font-style: italic;
+}
+.ne-quill .ql-editor img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 8px 0;
+}
+
+/* ===== 地点标注 blot ===== */
+.note-location-mark {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255, 138, 61, 0.12);
+    color: #ff6a00;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 0 2px;
+    transition: background 0.2s;
+}
+.note-location-mark:hover {
+    background: rgba(255, 138, 61, 0.22);
+}
+
+/* ===== 行程模板挂载卡 blot ===== */
+.note-template-mount {
+    margin: 16px 0;
+    cursor: pointer;
+}
+.note-template-mount .ntm-inner {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #f8f9ff, #eef2ff);
+    border: 1px solid #dde3f5;
+    border-radius: 12px;
+    padding: 12px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.note-template-mount:hover .ntm-inner {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(123, 104, 238, 0.15);
+}
+.note-template-mount .ntm-cover {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #FFB84D, #FF9500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+.note-template-mount .ntm-info {
+    flex: 1;
+    margin-left: 12px;
+    min-width: 0;
+}
+.note-template-mount .ntm-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.note-template-mount .ntm-meta {
+    font-size: 12px;
+    color: #999;
+    margin-top: 2px;
+}
+.note-template-mount .ntm-arrow {
+    color: #7B68EE;
+    font-size: 22px;
+    font-weight: 300;
+    margin-left: 8px;
+}
+
+/* ===== 游记详情页 ===== */
+.note-detail-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.note-detail-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.note-detail-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #fff;
+    min-height: 100vh;
+    animation: ndSlideIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes ndSlideIn {
+    from { transform: translateY(40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.nd-header {
+    position: sticky;
+    top: 0;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    z-index: 10;
+}
+.nd-back {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #333;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+}
+.nd-actions {
+    display: flex;
+    gap: 8px;
+}
+.nd-action-btn {
+    background: #f5f5f7;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+.nd-action-btn:active { transform: scale(0.92); }
+.nd-action-btn.active {
+    background: rgba(255, 138, 61, 0.18);
+}
+
+.nd-cover {
+    width: 100%;
+    height: 240px;
+    background-size: cover;
+    background-position: center;
+    background-color: #f5f5f7;
+}
+.nd-cover.emoji {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 80px;
+    background: linear-gradient(135deg, #f8f9ff, #eef2ff);
+}
+
+.nd-body {
+    padding: 20px 16px 60px;
+}
+.nd-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #222;
+    line-height: 1.4;
+    margin-bottom: 12px;
+}
+.nd-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+.nd-author-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.nd-author-avatar.emoji {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f7;
+    font-size: 14px;
+}
+.nd-author-name {
+    color: #333;
+    font-weight: 600;
+}
+.nd-dot {
+    color: #ddd;
+}
+.nd-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: #999;
+    padding: 8px 0;
+    border-top: 1px solid #f5f5f7;
+    border-bottom: 1px solid #f5f5f7;
+    margin-bottom: 20px;
+}
+
+.nd-html-content {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #333;
+    word-break: break-word;
+}
+.nd-html-content h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 20px 0 10px;
+    color: #222;
+}
+.nd-html-content p {
+    margin: 12px 0;
+}
+.nd-html-content img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 12px 0;
+}
+.nd-html-content blockquote {
+    border-left: 3px solid #ff8a3d;
+    padding-left: 12px;
+    color: #666;
+    margin: 12px 0;
+    font-style: italic;
+}
+
+/* ===== 文中地点列表 ===== */
+.nd-locations {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+.nd-loc-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 12px;
+}
+.nd-loc-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #f8f9ff;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.nd-loc-item:active { background: #eef2ff; }
+.nd-loc-emoji { font-size: 18px; flex-shrink: 0; }
+.nd-loc-info { flex: 1; min-width: 0; }
+.nd-loc-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+.nd-loc-addr {
+    font-size: 12px;
+    color: #999;
+    margin-top: 2px;
+}
+.nd-loc-fav {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.nd-loc-fav:active { transform: scale(0.9); }
+.nd-loc-fav.active {
+    background: #FFF0F0;
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.2);
+}
+
+/* ===== 社区瀑布流中的游记卡片 ===== */
+.community-card.note-card .community-card-cover {
+    background: linear-gradient(135deg, #fdf6e3, #ffe8d6);
+}
+.community-card.note-card .note-card-badge {
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    background: rgba(255, 138, 61, 0.95);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    z-index: 3;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}

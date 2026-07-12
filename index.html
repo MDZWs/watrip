@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>哇途·AI旅行规划</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/input-page.css?v=20260706c">
+    <link rel="stylesheet" href="css/result-page.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/modals.css">
+    <link rel="stylesheet" href="css/pages.css?v=20260713d">
+    <link rel="stylesheet" href="css/author-space.css?v=20260703">
+    <link rel="stylesheet" href="css/ui-kit.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/travel-note.css">
+    <link rel="stylesheet" href="css/spot-record.css?v=20260704n">
+    <link rel="stylesheet" href="css/pdf-preview.css">
+    <!-- Quill 富文本编辑器 -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    <!-- jsPDF + html2canvas（PDF导出） -->
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+<div class="phone-frame">
+    <div class="status-bar">
+        <span>9:41</span>
+        <span style="display:flex;align-items:center;gap:6px;">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect x="0" y="3" width="3" height="9" rx="1" fill="#000"/><rect x="5" y="0" width="3" height="12" rx="1" fill="#000"/><rect x="10" y="4" width="3" height="8" rx="1" fill="#000"/><rect x="15" y="6" width="3" height="6" rx="1" fill="#000"/></svg>
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M8 3C10.5 3 12.8 3.9 14.5 5.5L16 4C13.8 2 11 1 8 1S2.2 2 0 4L1.5 5.5C3.2 3.9 5.5 3 8 3Z" fill="#000"/><path d="M8 7C9.4 7 10.7 7.5 11.7 8.4L13.2 6.9C11.8 5.7 10 5 8 5S4.2 5.7 2.8 6.9L4.3 8.4C5.3 7.5 6.6 7 8 7Z" fill="#000"/><circle cx="8" cy="10" r="2" fill="#000"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="#000"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill="#000"/><path d="M23 4v4h2V4h-2Z" fill="#000"/></svg>
+        </span>
+    </div>
+
+    <!-- ============ HOME / 我的行程页 ============ -->
+    <div class="page active" id="homePage">
+        <div class="home-header">
+            <div class="home-greeting">
+                <div class="greeting-text">
+                    <div class="greeting-hi" id="greetingHi">你好，旅行者</div>
+                    <div class="greeting-sub" id="greetingSub">今天想去哪里看看？</div>
+                </div>
+                <div class="home-avatar stamp-avatar" id="homeAvatar" onclick="App.handleAvatarClick()">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="home-scroll">
+            <!-- 旅行统计邮票卡 -->
+            <div class="travel-stats-card stamp-stats" id="travelStatsCard">
+                <div class="ts-item">
+                    <div class="ts-num" id="tsTrips">0</div>
+                    <div class="ts-label">行程</div>
+                </div>
+                <div class="ts-divider"></div>
+                <div class="ts-item">
+                    <div class="ts-num" id="tsCities">0</div>
+                    <div class="ts-label">城市</div>
+                </div>
+                <div class="ts-divider"></div>
+                <div class="ts-item">
+                    <div class="ts-num" id="tsDays">0</div>
+                    <div class="ts-label">天数</div>
+                </div>
+                <div class="ts-divider"></div>
+                <div class="ts-item">
+                    <div class="ts-num" id="tsSpots">0</div>
+                    <div class="ts-label">景点</div>
+                </div>
+            </div>
+
+            <div class="home-quick-section" id="homeWidgets">
+                <!-- 行程倒计时组件 -->
+                <div class="widget-countdown envelope-ticket" data-widget="countdown" id="countdownWidget" style="display:none;" onclick="HomeModule.openNearestTrip()">
+                    <div class="env-tear"></div>
+                    <div class="env-body">
+                        <div class="env-stamp"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M13 2v6l6-3-6-3z"/><path d="M13 22v-6l6 3-6 3z"/><path d="M17 12H7"/><path d="M11 5v14"/></svg></div>
+                        <div class="env-info">
+                            <div class="env-label" id="cdLabel">即将出发</div>
+                            <div class="env-title" id="cdTitle">--</div>
+                            <div class="env-meta" id="cdMeta">--</div>
+                        </div>
+                        <div class="env-days" id="cdDays">--</div>
+                    </div>
+                </div>
+
+                <!-- 旅行中行程组件 -->
+                <div class="widget-trips stamp-section" data-widget="trips">
+                    <div class="widget-header">
+                        <span class="widget-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg> 我的行程</span>
+                        <button class="widget-more" onclick="App.switchTab('trips')">全部 ›</button>
+                    </div>
+                    <div class="trips-scroll" id="homeTripsScroll">
+                    </div>
+                </div>
+
+                <!-- 今日攻略组件 -->
+                <div class="widget-today envelope-open" data-widget="today" id="todayWidget" style="display:none;" onclick="HomeModule.openTodayPlan()">
+                    <div class="envo-header">
+                        <span class="envo-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> 今日攻略</span>
+                        <span class="envo-date" id="todayDate">--</span>
+                    </div>
+                    <div class="envo-content" id="todayContent">
+                        <div class="envo-empty">今天没有安排景点，去规划一段旅程吧</div>
+                    </div>
+                </div>
+
+                <!-- 快捷打卡组件 -->
+                <div class="widget-checkin passport-stamp" data-widget="checkin" id="checkinWidget" style="display:none;" onclick="HomeModule.openQuickCheckin()">
+                    <div class="pp-stamp"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"/></svg></div>
+                    <div class="pp-info">
+                        <div class="pp-title">今日打卡</div>
+                        <div class="pp-sub" id="checkinSub">--</div>
+                    </div>
+                    <div class="pp-action">去打卡</div>
+                </div>
+
+                <!-- 旅行记忆组件 -->
+                <div class="widget-memory sticky-note" data-widget="memory" onclick="HomeModule.openMemorySpace()">
+                    <div class="note-tape"></div>
+                    <div class="note-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 我的旅行记忆</div>
+                    <div class="note-title" id="hqsMemoryTitle">记录每一段旅途</div>
+                    <div class="note-sub" id="hqsMemorySub">0条记录 · 0张照片 · 0座城市</div>
+                    <div class="note-line"></div>
+                </div>
+
+                <!-- 天气组件 -->
+                <div class="weather-widget" data-widget="weather" id="weatherWidget" style="display:none;" onclick="HomeModule.openWeatherPlanner()">
+                    <div class="ww-main">
+                        <div class="ww-icon" id="wwIcon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>
+                        <div class="ww-info">
+                            <div class="ww-temp" id="wwTemp">--°</div>
+                            <div class="ww-desc" id="wwDesc">加载天气中...</div>
+                        </div>
+                    </div>
+                    <div class="ww-location" id="wwLocation"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:2px;"><circle cx="12" cy="10" r="3"/><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"/></svg> 定位中...</div>
+                    <div class="ww-forecast" id="wwForecast"></div>
+                </div>
+            </div>
+
+            <!-- 悬浮添加组件按钮 -->
+            <button class="home-add-widget-btn" id="homeAddWidgetBtn" onclick="HomeModule.showWidgetPicker()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+
+            <div class="quick-actions stamp-tools">
+                <div class="quick-action-card qa-stamp qa-stamp--orange" onclick="App.navigateTo('plan')">
+                    <div class="qa-stamp-holes"></div>
+                    <div class="qa-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+                    </div>
+                    <div class="qa-label">AI规划</div>
+                </div>
+                <div class="quick-action-card qa-stamp qa-stamp--blue" onclick="HomeModule.openMemorySpace()">
+                    <div class="qa-stamp-holes"></div>
+                    <div class="qa-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    </div>
+                    <div class="qa-label">旅行记忆</div>
+                </div>
+                <div class="quick-action-card qa-stamp qa-stamp--purple" onclick="HomeModule.openWeatherPlanner()">
+                    <div class="qa-stamp-holes"></div>
+                    <div class="qa-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    </div>
+                    <div class="qa-label">天气</div>
+                </div>
+                <div class="quick-action-card qa-stamp qa-stamp--green" onclick="App.openQuickExpense()">
+                    <div class="qa-stamp-holes"></div>
+                    <div class="qa-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l4 7 4-7"/><path d="M6 11h12"/><path d="M6 15h12"/><path d="M12 11v9"/></svg>
+                    </div>
+                    <div class="qa-label">记账</div>
+                </div>
+            </div>
+
+            <!-- 快捷工具栏已移除（功能色重构后入口合并到快捷入口） -->
+
+        </div>
+    </div>
+
+    <!-- ============ TRIPS PAGE ============ -->
+    <div class="page" id="tripsPage">
+        <div class="page-header">
+            <h1 class="page-title">我的行程</h1>
+            <button class="header-add-btn" onclick="App.navigateTo('plan')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                新建
+            </button>
+        </div>
+        <!-- 两 tab：我的行程 / 旅行记忆 -->
+        <div class="trip-tabs" id="tripTabs">
+            <span class="trip-tab active" data-idx="0" onclick="App.switchTripTab(0)">我的行程<span class="tb-count" id="cntAll">0</span></span>
+            <span class="trip-tab" data-idx="1" onclick="App.switchTripTab(1)">旅行记忆<span class="tb-count" id="cntMemory">0</span></span>
+            <div class="trip-tab-indicator" id="tripTabIndicator"></div>
+        </div>
+        <div class="trip-tag-bar" id="tripTagBar"></div>
+        <!-- 滑动内容 -->
+        <div class="trip-swipe" id="tripSwipe">
+            <div class="trip-swipe-track" id="tripSwipeTrack">
+                <div class="trip-pane" id="tripListAll"></div>
+                <div class="trip-pane" id="tripListMemory"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ INPUT PAGE ============ -->
+    <div class="page" id="inputPage">
+        <div class="nav-bar">
+            <button class="nav-back" onclick="App.goBack()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <div class="nav-right"></div>
+        </div>
+
+        <div class="input-scroll">
+        <h1 class="big-title">去哪里玩？</h1>
+        <p class="big-subtitle">AI 为你量身定制行程，三步搞定</p>
+
+        <div class="capsule-input-card" id="capsuleInputCard">
+            <div class="dest-row" id="destRow">
+                <div class="ai-icon-circle">
+                    <svg viewBox="0 0 32 32">
+                        <defs>
+                            <linearGradient id="aiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#FFB983"/>
+                                <stop offset="100%" style="stop-color:#FF8A3D"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M16 4L18.5 11.5L26 13L20 19L21.5 27L16 23L10.5 27L12 19L6 13L13.5 11.5L16 4Z" fill="url(#aiGrad)"/>
+                    </svg>
+                </div>
+                <div class="dest-tags-wrap" id="destTags"></div>
+                <input type="text" class="dest-input-field" id="destInput" placeholder="输入目的地或直接说「周末去杭州玩2天」" autocomplete="off">
+            </div>
+            <div class="autocomplete-dropdown" id="autoDropdown">
+                <div class="auto-city-section" id="autoCitySection">
+                    <div class="auto-section-title" id="autoCityTitle">热门城市</div>
+                    <div class="auto-city-grid" id="autoCityGrid"></div>
+                </div>
+                <div class="auto-poi-section" id="autoPoiSection" style="display:none;">
+                    <div class="auto-section-title">地点推荐</div>
+                    <div id="autoPoiList"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="extraSections" style="display:none;">
+            <div class="input-step" data-step="1">
+                <div class="section-label">哪天出发？<span class="section-hint">选填，可查天气</span></div>
+                <button class="date-btn" onclick="App.showDatePicker()">
+                    <div class="date-icon-wrap">
+                        <svg viewBox="0 0 32 32"><rect x="4" y="6" width="24" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="12" x2="28" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="3" x2="10" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="22" y1="3" x2="22" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="date-text-wrap" id="dateText">选择日期，查看天气</div>
+                    <div class="date-arrow">
+                        <svg viewBox="0 0 20 20"><polyline points="7,4 13,10 7,16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                </button>
+            </div>
+
+            <div class="input-step" data-step="2">
+                <div class="section-label">玩什么？<span class="section-hint">最多选3个</span></div>
+                <div class="pref-tags-wrap">
+                </div>
+            </div>
+
+            <div class="input-step" data-step="3">
+                <div class="section-label">出行偏好<span class="section-hint">让规划更精准</span></div>
+                <div class="opt-group">
+                    <div class="opt-group-label">人数</div>
+                    <div class="opt-chips" id="peopleChips">
+                        <button class="opt-chip active" data-people="1" onclick="App.selectOpt(this,'people')">独行</button>
+                        <button class="opt-chip" data-people="2" onclick="App.selectOpt(this,'people')">情侣</button>
+                        <button class="opt-chip" data-people="3" onclick="App.selectOpt(this,'people')">家庭</button>
+                        <button class="opt-chip" data-people="4" onclick="App.selectOpt(this,'people')">朋友</button>
+                    </div>
+                </div>
+                <div class="opt-group">
+                    <div class="opt-group-label">预算</div>
+                    <div class="opt-chips" id="budgetChips">
+                        <button class="opt-chip active" data-budget="economy" onclick="App.selectOpt(this,'budget')">经济</button>
+                        <button class="opt-chip" data-budget="comfort" onclick="App.selectOpt(this,'budget')">舒适</button>
+                        <button class="opt-chip" data-budget="luxury" onclick="App.selectOpt(this,'budget')">豪华</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="more-settings">
+                <button class="more-settings-toggle" onclick="App.toggleMoreSettings()">
+                    <span id="moreSettingsIcon">▼</span>
+                    <span id="moreSettingsText">更多设置（交通/住宿/节奏）</span>
+                </button>
+                <div class="more-settings-content" id="moreSettingsContent" style="display:none;">
+                    <div class="opt-group">
+                        <div class="opt-group-label">交通方式</div>
+                        <div class="opt-chips" id="transportChips">
+                            <button class="opt-chip" data-transport="plane" onclick="App.selectOpt(this,'transport')">✈️ 飞机</button>
+                            <button class="opt-chip" data-transport="train" onclick="App.selectOpt(this,'transport')">🚄 高铁</button>
+                            <button class="opt-chip" data-transport="selfdrive" onclick="App.selectOpt(this,'transport')">🚗 自驾</button>
+                            <button class="opt-chip" data-transport="public" onclick="App.selectOpt(this,'transport')">🚌 公共交通</button>
+                        </div>
+                    </div>
+                    <div class="opt-group">
+                        <div class="opt-group-label">住宿偏好</div>
+                        <div class="opt-chips" id="hotelChips">
+                            <button class="opt-chip" data-hotel="budget" onclick="App.selectOpt(this,'hotel')">青旅/民宿</button>
+                            <button class="opt-chip" data-hotel="comfort" onclick="App.selectOpt(this,'hotel')">舒适酒店</button>
+                            <button class="opt-chip" data-hotel="luxury" onclick="App.selectOpt(this,'hotel')">高端酒店</button>
+                        </div>
+                    </div>
+                    <div class="opt-group">
+                        <div class="opt-group-label">行程节奏</div>
+                        <div class="opt-chips" id="paceChips">
+                            <button class="opt-chip" data-pace="relaxed" onclick="App.selectOpt(this,'pace')">🌿 悠闲</button>
+                            <button class="opt-chip active" data-pace="moderate" onclick="App.selectOpt(this,'pace')">🙂 适中</button>
+                            <button class="opt-chip" data-pace="intensive" onclick="App.selectOpt(this,'pace')">🔥 特种兵</button>
+                        </div>
+                    </div>
+                    <div class="opt-group">
+                        <div class="opt-group-label">同行人群</div>
+                        <div class="opt-chips" id="companionChips">
+                            <button class="opt-chip" data-companion="elderly" onclick="App.selectOpt(this,'companion')">👴 带老人</button>
+                            <button class="opt-chip" data-companion="kids" onclick="App.selectOpt(this,'companion')">👶 带小孩</button>
+                            <button class="opt-chip" data-companion="pet" onclick="App.selectOpt(this,'companion')">🐕 带宠物</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div class="bottom-btns" id="bottomBtns" style="display:none;">
+            <button class="main-btn btn-manual" onclick="App.manualPlan()">手动规划</button>
+            <button class="main-btn btn-smart" id="smartBtn" onclick="App.smartPlan()">
+                <span id="smartBtnText">智能规划</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============ MANUAL PLAN PAGE ============ -->
+    <div class="page" id="manualPlanPage" style="display:none;">
+        <div class="mp-nav-bar">
+            <button class="mp-back-btn" onclick="ManualPlan.close()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <div class="mp-nav-title">
+                <div class="mp-nav-title-main">选择景点</div>
+                <div class="mp-nav-city" id="mpNavCity">—</div>
+            </div>
+            <div class="mp-nav-right"></div>
+        </div>
+
+        <div class="mp-scroll" id="mpScrollArea">
+            <!-- 社区推荐区 -->
+            <div class="mp-community-section">
+                <div class="mp-section-header">
+                    <span class="mp-section-title">热门行程方案</span>
+                </div>
+                <div class="mp-tpl-scroll" id="mpTplScroll"></div>
+            </div>
+
+            <!-- 筛选栏 -->
+            <div class="mp-filter-bar" id="mpFilterBar">
+                <button class="mp-filter-chip active" data-filter="all">全部</button>
+                <button class="mp-filter-chip" data-filter="classic">必游</button>
+                <button class="mp-filter-chip" data-filter="food">美食</button>
+                <button class="mp-filter-chip" data-filter="photo">拍照</button>
+                <button class="mp-filter-chip" data-filter="nature">自然</button>
+                <button class="mp-filter-chip" data-filter="niche">小众</button>
+            </div>
+
+            <!-- 景点列表 -->
+            <div class="mp-spots-list" id="mpSpotsList"></div>
+            <div class="mp-bottom-space"></div>
+        </div>
+
+        <!-- 底部固定操作栏 -->
+        <div class="mp-bottom-bar" id="mpBottomBar">
+            <div class="mp-selected-info">
+                <span class="mp-selected-count" id="mpSelectedCount">未选择景点</span>
+            </div>
+            <button class="mp-gen-btn" id="mpGenBtn" disabled>生成行程</button>
+        </div>
+    </div>
+
+    <!-- ============ TRIP DETAIL PAGE ============ -->
+    <div class="page trip-detail-page" id="tripDetailPage">
+        <div class="detail-list-mode" id="detailListMode">
+            <div class="detail-nav-bar">
+                <button class="detail-back" id="detailBack">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <div class="detail-title-wrap">
+                    <h1 class="detail-title" id="detailTitle">行程</h1>
+                    <div class="detail-subtitle" id="detailSubtitle"></div>
+                </div>
+                <div class="detail-nav-actions" id="listActions">
+                    <button class="detail-icon-btn" id="detailJournalBtn" title="预览想法">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    </button>
+                    <button class="detail-icon-btn" id="detailPdfBtn" title="导出PDF">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    </button>
+                    <button class="detail-icon-btn" id="detailShareBtn" title="分享行程">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="detail-tabs-bar">
+                <button class="detail-tab active" data-tab="itinerary">行程</button>
+                <button class="detail-tab" data-tab="expense">记账</button>
+                <button class="detail-tab" data-tab="packing">行李</button>
+                <div class="detail-tab-indicator" id="detailTabIndicator"></div>
+            </div>
+
+            <div class="detail-scroll">
+                <div class="detail-panel active" id="itineraryPanel">
+                    <div class="day-pills-scroll" id="dayPillsBar"></div>
+                    <!-- 每日摘要栏 -->
+                    <div class="day-summary-bar" id="daySummaryBar"></div>
+                    <div class="itinerary-content" id="itineraryContent"></div>
+                    <button class="add-spot-btn" id="addSpotBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                        添加热门地点
+                    </button>
+                    <div style="height:100px;"></div>
+                </div>
+                <div class="detail-panel" id="expensePanel" style="position:relative;padding-bottom:80px;">
+                    <div class="exp-summary-card">
+                        <div class="exp-sum-top">
+                            <span class="exp-sum-label">总支出</span>
+                            <span class="exp-sum-cnt" id="expCountLabel">0笔</span>
+                        </div>
+                        <div class="exp-sum-amount"><span class="yuan">¥</span><span id="expenseTotal">0</span></div>
+                        <div class="exp-cat-chips" id="expCatChips"></div>
+                    </div>
+                    <div class="exp-filter-bar" id="expFilterBar"></div>
+                    <div class="exp-list" id="expenseList"></div>
+                    <button class="exp-add-btn" id="expAddBtn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        记一笔
+                    </button>
+                    <div style="height:80px;"></div>
+                </div>
+                <div class="detail-panel" id="packingPanel" style="position:relative;padding-bottom:80px;">
+                    <div class="packing-progress" id="packingProgress"></div>
+                    <div class="packing-list" id="packingList"></div>
+                    <button class="packing-add-btn" id="packingAddBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 添加物品
+                    </button>
+                </div>
+            </div>
+
+            <button class="mode-switch-fab" id="modeSwitchBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 7 11.5 7.3 11.8a1 1 0 0 0 1.4 0C13 21.5 20 15.4 20 10a8 8 0 0 0-8-8z"/></svg>
+                地图模式
+            </button>
+            <button class="ai-fab" id="aiFabBtn" title="AI旅行助手">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+            </button>
+
+            <div class="confirm-overlay" id="confirmModal" style="display:none;">
+                <div class="confirm-box">
+                    <div class="confirm-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    </div>
+                    <div class="confirm-title" id="confirmTitle">删除行程</div>
+                    <div class="confirm-msg" id="confirmMsg">确定要删除这个行程吗？</div>
+                    <div class="confirm-btns">
+                        <button class="confirm-cancel" id="confirmCancel">取消</button>
+                        <button class="confirm-ok" id="confirmOk">删除</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-map-mode" id="detailMapMode" style="display:none;">
+            <div id="detailMapContainer" class="detail-map"></div>
+            <div class="map-day-pills" id="mapDayPillsBar"></div>
+            <button class="detail-back" id="mapModeBackBtn" style="position:absolute;top:max(12px,env(safe-area-inset-top));left:12px;width:40px;height:40px;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);z-index:10;cursor:pointer;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <div class="map-toolbar">
+                <button class="map-tool-btn active" id="mapLineBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+                    <span>路线</span>
+                </button>
+                <button class="map-tool-btn" id="mapPointBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span>景点</span>
+                </button>
+                <button class="map-tool-btn" id="mapAllBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                    <span>全览</span>
+                </button>
+                <button class="map-tool-btn" id="detailMapAddSpotBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                    <span>添加</span>
+                </button>
+            </div>
+            <div class="map-spot-card" id="mapSpotCard" style="display:none;">
+                <div class="map-spot-card-inner">
+                    <div style="display:flex;align-items:flex-start;gap:12px;">
+                        <div class="spot-emoji" id="mapSpotEmoji" style="width:48px;height:48px;font-size:24px;cursor:pointer;">📍</div>
+                        <div style="flex:1;min-width:0;cursor:pointer;" id="mapSpotInfoArea">
+                            <div style="font-size:16px;font-weight:700;color:#222;" id="mapSpotName"></div>
+                            <div style="font-size:12px;color:#999;margin-top:4px;" id="mapSpotInfo"></div>
+                        </div>
+                        <button id="mapSpotNavBtn" style="padding:8px 12px;border:none;border-radius:8px;background:var(--brand);color:#fff;font-weight:600;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;">🧭 导航</button>
+                        <button id="closeMapSpotCard" style="border:none;background:none;font-size:18px;color:#999;cursor:pointer;padding:4px;">✕</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ADD SPOT PANEL ===== -->
+    <div class="add-spot-overlay" id="addSpotOverlay">
+        <div class="add-spot-panel">
+            <div class="add-spot-handle"></div>
+            <div class="add-spot-header">
+                <h3>添加地点</h3>
+                <button class="add-spot-close" id="addSpotClose">✕</button>
+            </div>
+            <div class="add-spot-search">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" id="addSpotSearchInput" placeholder="搜索地点（基于高德真实数据）">
+            </div>
+            <div class="add-spot-day-select" id="addSpotDaySelect"></div>
+            <div class="add-spot-list" id="addSpotList"></div>
+        </div>
+    </div>
+
+    <!-- ===== AI ASSISTANT PANEL ===== -->
+    <div class="ai-assistant-overlay" id="aiAssistantOverlay">
+        <div class="ai-assistant-panel">
+            <div class="ai-assistant-header">
+                <div class="ai-assistant-avatar">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
+                </div>
+                <div class="ai-assistant-info">
+                    <div class="ai-assistant-name">旅途助手</div>
+                    <div class="ai-assistant-desc">智能辅助你的旅行，让行程更完美</div>
+                </div>
+                <button style="border:none;background:#F5F5F7;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;" id="aiAssistantClose">✕</button>
+            </div>
+            <div class="ai-actions-grid">
+                <button class="ai-action-card" data-action="hotel">
+                    <div class="ai-action-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M4 20V8l8-5 8 5v12"/><path d="M9 20v-6h6v6"/></svg></div>
+                    <div class="ai-action-title">帮订酒店</div>
+                    <div class="ai-action-desc">查找附近高性价比酒店住宿</div>
+                </button>
+                <button class="ai-action-card" data-action="food">
+                    <div class="ai-action-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18"/><path d="M3 11a9 9 0 0 1 18 0"/><path d="M5 11v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9"/><path d="M8 15h8"/></svg></div>
+                    <div class="ai-action-title">周边美食</div>
+                    <div class="ai-action-desc">发现地道特色餐厅和小吃</div>
+                </button>
+                <button class="ai-action-card" data-action="recommend">
+                    <div class="ai-action-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+                    </div>
+                    <div class="ai-action-title">优质推荐</div>
+                    <div class="ai-action-desc">AI精选热门景点补充行程</div>
+                </button>
+                <button class="ai-action-card" data-action="optimize">
+                    <div class="ai-action-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg></div>
+                    <div class="ai-action-title">优化路线</div>
+                    <div class="ai-action-desc">重新排序减少折返路程</div>
+                </button>
+            </div>
+            <button class="ai-chat-entry-btn" data-action="chat">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+                <span>和AI自由对话，问任何旅行问题</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== AI CHAT PANEL ===== -->
+    <div class="ai-chat-overlay" id="aiChatPanel">
+        <div class="ai-chat-panel">
+            <div class="ai-chat-header">
+                <div class="ai-chat-title">
+                    <span class="ai-chat-avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg></span>
+                    <span>AI旅行助手</span>
+                </div>
+                <button class="ai-chat-close" id="aiChatClose">✕</button>
+            </div>
+            <div class="ai-chat-messages" id="aiChatMessages">
+                <div class="ai-msg ai-msg-ai">
+                    <div class="ai-msg-avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg></div>
+                    <div class="ai-msg-bubble">
+                        你好！我是你的AI旅行助手小哇途<br>有什么可以帮你的？比如找附近美食、推荐酒店、优化路线...
+                    </div>
+                </div>
+            </div>
+            <div class="ai-quick-chips" id="aiQuickChips">
+                <!-- JS动态填充 -->
+            </div>
+            <div class="ai-input-bar">
+                <input type="text" id="aiChatInput" placeholder="问我任何关于行程的问题..." />
+                <button id="aiChatSend">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading overlay (shared) -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="thinking-header">
+            <div class="thinking-ai-avatar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M7 8V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"/><circle cx="9" cy="14" r="1.5"/><circle cx="15" cy="14" r="1.5"/><path d="M12 8V4"/></svg></div>
+            <div class="thinking-header-info">
+                <div class="thinking-ai-name">哇途AI</div>
+                <div class="thinking-ai-status">
+                    <span class="thinking-dot"></span>
+                    <span id="thinkingStatusText">正在规划行程...</span>
+                    <div class="thinking-time-badge" id="thinkingTimeBadge" style="display:none;">
+                        <span id="thinkingTimeText">已思考 0秒</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="thinking-body">
+            <div class="thinking-chain" id="thinkingChain"></div>
+            <!-- 步骤模板 -->
+            <div class="thinking-step" id="thinkingStepTemplate" style="display:none;">
+                <div class="step-indicator">
+                    <div class="step-dot"></div>
+                    <div class="step-line"></div>
+                </div>
+                <div class="step-content">
+                    <div class="step-label"></div>
+                    <div class="step-detail"></div>
+                </div>
+            </div>
+        </div>
+        <div class="thinking-footer">
+            <div class="thinking-progress-bar">
+                <div class="thinking-progress-fill" id="thinkingProgressFill"></div>
+            </div>
+            <div class="thinking-tip">
+                <span class="sparkle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg></span>
+                <span>基于高德真实景点数据，所有地点可导航到达</span>
+            </div>
+        </div>
+    </div>
+
+        <!-- ============ COMMUNITY PAGE ============ -->
+        <div class="page" id="communityPage">
+            <div class="page-header">
+                <h1 class="page-title">发现</h1>
+                <div style="display:flex;gap:6px;">
+                    <button class="sv-entry-btn" onclick="CheckinAction.openEntry()" title="打卡" style="background:linear-gradient(135deg,#A8E0FF,#5CC6FF);color:#fff;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                    </button>
+                    <button class="sv-entry-btn sv-publish-btn" onclick="CommunityModule.openPublishPicker()" title="发布">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                    </button>
+                    <button class="sv-entry-btn" onclick="ShortVideoModule.open()" title="沉浸刷">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="3"/><line x1="12" y1="6" x2="12" y2="6"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="community-search-bar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" id="communitySearchInput" placeholder="搜索城市，发现当地精彩行程" oninput="CommunityModule.search(this.value)">
+            </div>
+            <div class="community-tabs-scroll" id="communityTabs">
+                <button class="community-tab active" data-cat="all">推荐</button>
+                <button class="community-tab" data-cat="food">美食</button>
+                <button class="community-tab" data-cat="nature">自然</button>
+                <button class="community-tab" data-cat="photo">拍照</button>
+                <button class="community-tab" data-cat="citywalk">CityWalk</button>
+                <button class="community-tab" data-cat="niche">小众</button>
+                <button class="community-tab" data-cat="family">亲子</button>
+                <span class="community-tabs-divider"></span>
+                <button class="community-tab community-tab-fav" data-cat="favorites" onclick="CommunityModule.toggleFavFilter()"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-2px;margin-right:3px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 收藏</button>
+            </div>
+            <div class="page-scroll">
+                <div class="community-waterfall" id="communityWaterfall"></div>
+            </div>
+        </div>
+
+        <!-- ============ TEMPLATE PREVIEW PAGE ============ -->
+        <div class="page preview-page" id="templatePreviewPage" style="display:none;">
+            <div class="preview-nav-bar">
+                <button class="preview-back" id="previewBackBtn">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <div class="preview-nav-title">行程预览</div>
+                <div style="width:40px;"></div>
+            </div>
+
+            <div class="preview-hero" id="previewHero">
+                <div class="preview-hero-bg" id="previewHeroBg"></div>
+                <div class="preview-hero-overlay"></div>
+                <div class="preview-hero-content">
+                    <div class="preview-hero-top">
+                        <div class="preview-hero-author">
+                            <span class="preview-hero-avatar" id="previewAvatar">🦌</span>
+                            <span class="preview-hero-author-name" id="previewAuthor">作者</span>
+                        </div>
+                        <div class="preview-hero-actions">
+                            <button class="preview-action-btn" id="previewVoteBtn" title="投票">🎟️</button>
+                            <button class="preview-action-btn" id="previewLikeBtn" title="点赞">🤍</button>
+                            <button class="preview-action-btn" id="previewFavBtn" title="收藏">🤍</button>
+                        </div>
+                    </div>
+                    <h1 class="preview-hero-title" id="previewTitle">行程标题</h1>
+                    <div class="preview-hero-meta">
+                        <span class="preview-days" id="previewDays">2天</span>
+                        <span class="preview-dest" id="previewDest">📍 杭州</span>
+                    </div>
+                    <div class="preview-tags" id="previewTags"></div>
+                </div>
+            </div>
+
+            <div class="preview-list-mode" id="previewListMode">
+                <div class="preview-day-overview" id="previewDayOverview"></div>
+                <div class="preview-day-guide" id="previewDayGuide">
+                    <div class="pdg-header" onclick="TemplatePreview.toggleGuide()">
+                        <div class="pdg-title">
+                            <span class="pdg-icon">💡</span>
+                            <span>今日攻略</span>
+                        </div>
+                        <button class="pdg-toggle" id="previewGuideToggle">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="pdg-content" id="previewGuideContent"></div>
+                </div>
+                <div class="preview-day-pills" id="previewDayPills"></div>
+                <div class="preview-scroll">
+                    <div class="preview-itinerary" id="previewItinerary"></div>
+                    <div style="height:140px;"></div>
+                </div>
+            </div>
+
+            <div class="preview-map-mode" id="previewMapMode" style="display:none;">
+                <div id="previewMapContainer" class="preview-map"></div>
+                <div class="preview-map-day-pills" id="previewMapDayPills"></div>
+                <button class="preview-map-back" id="previewMapBackBtn" style="position:absolute;top:max(12px,env(safe-area-inset-top));left:12px;width:40px;height:40px;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);z-index:10;cursor:pointer;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <button class="preview-mode-switch" id="previewModeSwitchBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z M3 9h18 M9 21V9"/></svg>
+                    列表
+                </button>
+                <div class="preview-map-spot-card" id="previewMapSpotCard" style="display:none;">
+                    <div class="preview-map-spot-inner">
+                        <div style="display:flex;align-items:flex-start;gap:12px;">
+                            <div class="preview-map-spot-emoji" id="previewMapSpotEmoji">📍</div>
+                            <div style="flex:1;min-width:0;" id="previewMapSpotInfo">
+                                <div style="font-size:16px;font-weight:700;color:#222;" id="previewMapSpotName"></div>
+                                <div style="font-size:12px;color:#999;margin-top:4px;" id="previewMapSpotInfo"></div>
+                            </div>
+                            <button id="previewCloseMapSpot" style="border:none;background:none;font-size:18px;color:#999;cursor:pointer;padding:4px;">✕</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="preview-mode-fab" id="previewModeFab">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 7 11.5 7.3 11.8a1 1 0 0 0 1.4 0C13 21.5 20 15.4 20 10a8 8 0 0 0-8-8z"/></svg>
+                地图模式
+            </button>
+
+            <div class="preview-bottom-bar">
+                <button class="preview-btn-fav" id="previewFavBottomBtn">
+                    <span class="pbf-icon">🤍</span>
+                    <span class="pbf-text">收藏</span>
+                </button>
+                <button class="preview-btn-apply" id="previewApplyBtn">
+                    <span class="pba-text">套用此行程</span>
+                    <span class="pba-badge" id="previewApplyBadge">0人已用</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ============ PROFILE PAGE ============ -->
+        <div class="page" id="profilePage">
+            <div class="profile-hero">
+                <div class="profile-hero-bg"></div>
+                <div class="profile-hero-content">
+                    <div class="profile-top-row">
+                        <div class="profile-avatar-wrap">
+                            <div class="profile-avatar" id="profileAvatar">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div class="profile-avatar-badge" onclick="LevelSystem.openPrivilegesPanel()">Lv.1</div>
+                        </div>
+                        <div class="profile-user-info">
+                            <div class="profile-name-row">
+                                <span class="profile-name" id="profileName">旅行者</span>
+                                <button class="profile-edit-btn" onclick="ProfileModule._editUsername()">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                                </button>
+                            </div>
+                            <div class="profile-level-tag" onclick="LevelSystem.openPrivilegesPanel()">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                <span>萌新探索者</span>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </div>
+                            <div class="profile-points-row" onclick="PointsLedger.open()">
+                                <span class="pp-icon">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                </span>
+                                <span class="pp-num" id="userPoints">0</span>
+                                <span class="pp-label">积分</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-stats-card">
+                        <div class="pstat-item" onclick="ProfileModule.openMyPosts()">
+                            <div class="pstat-num" id="statTrips">0</div>
+                            <div class="pstat-label">发布</div>
+                        </div>
+                        <div class="pstat-divider"></div>
+                        <div class="pstat-item" onclick="ProfileModule.openFavorites()">
+                            <div class="pstat-num" id="statFavs">0</div>
+                            <div class="pstat-label">收藏</div>
+                        </div>
+                        <div class="pstat-divider"></div>
+                        <div class="pstat-item" onclick="ProfileModule.openFollowers()">
+                            <div class="pstat-num" id="statCopies">0</div>
+                            <div class="pstat-label">粉丝</div>
+                        </div>
+                        <div class="pstat-divider"></div>
+                        <div class="pstat-item" onclick="ProfileModule.openLikers()">
+                            <div class="pstat-num" id="statLikes">0</div>
+                            <div class="pstat-label">获赞</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-content">
+                <div class="profile-quick-actions">
+                    <div class="pqa-stamp" onclick="App.switchTab('trips')">
+                        <div class="pqa-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+                        </div>
+                        <span class="pqa-label">我的行程</span>
+                    </div>
+                    <div class="pqa-stamp" onclick="ProfileModule.openFavorites(true)">
+                        <div class="pqa-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                        </div>
+                        <span class="pqa-label">我的收藏</span>
+                    </div>
+                    <div class="pqa-stamp" onclick="ProfileModule.openMyPosts()">
+                        <div class="pqa-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        </div>
+                        <span class="pqa-label">我的发布</span>
+                    </div>
+                    <div class="pqa-stamp" onclick="CheckinAction.openMyCheckins()">
+                        <div class="pqa-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"/></svg>
+                        </div>
+                        <span class="pqa-label">我的打卡</span>
+                    </div>
+                </div>
+                <div class="profile-menu-section">
+                    <div class="profile-section-header">
+                        <span class="psh-title">我的内容</span>
+                    </div>
+                    <div class="profile-ticket-card">
+                        <div class="pt-item" onclick="PointsLedger.open()">
+                            <div class="pt-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                            </div>
+                            <span class="pt-label">积分明细</span>
+                            <span class="pt-arrow">›</span>
+                        </div>
+                        <div class="pt-item" onclick="PdfExport.openTripPicker()">
+                            <div class="pt-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+                            </div>
+                            <div class="pt-main">
+                                <div class="pt-title">导出 PDF</div>
+                                <div class="pt-desc">把行程导出来打印，给同行人看</div>
+                            </div>
+                            <span class="pt-badge">Lv4</span>
+                            <span class="pt-arrow">›</span>
+                        </div>
+                        <div class="pt-item" onclick="ProfileModule.openAchievements()">
+                            <div class="pt-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                            </div>
+                            <span class="pt-label">成就徽章</span>
+                            <span class="pt-arrow">›</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="profileMenuContainer"></div>
+
+                <div class="profile-footer">
+                    <span>哇途·AI旅行规划 v1.0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ BOTTOM TAB NAV ============ -->
+        <nav class="bottom-tab-bar" id="bottomTabBar">
+            <button class="tab-item active" data-tab="home" onclick="App.switchTab('home')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+                <span>首页</span>
+            </button>
+            <button class="tab-item" data-tab="trips" onclick="App.switchTab('trips')">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg>
+                <span>行程</span>
+            </button>
+            <button class="tab-item" data-tab="community" onclick="App.switchTab('community')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>社区</span>
+            </button>
+            <button class="tab-item" data-tab="profile" onclick="App.switchTab('profile')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>我的</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- ============ DATE PICKER ============ -->
+    <div class="date-picker-overlay" id="datePickerOverlay" onclick="App.closeDatePickerOnOverlay(event)">
+        <div class="date-picker-sheet" onclick="event.stopPropagation()">
+            <div class="date-picker-header">
+                <div class="date-picker-title">选择日期</div>
+                <div class="date-picker-cancel" onclick="App.closeDatePicker()">取消</div>
+            </div>
+            <div class="date-picker-body" id="calendarBody"></div>
+            <div class="date-picker-footer">
+                <button class="date-picker-confirm" id="dateConfirmBtn" onclick="App.confirmDatePicker()" disabled>确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ CHECKIN MAP PAGE ============ -->
+    <div class="checkin-map-page" id="checkinMapPage" style="display:none;">
+        <div class="checkin-map-header">
+            <button class="checkin-map-back" onclick="CheckinMap.close()">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <div class="checkin-map-title">地图打卡</div>
+            <button class="checkin-map-locate" onclick="CheckinMap.locate()" title="定位">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+            </button>
+        </div>
+        <div class="checkin-map-container" id="checkinMapContainer"></div>
+        <div class="checkin-map-search-bar">
+            <div class="checkin-map-search-input-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" id="checkinMapSearch" placeholder="搜索地点打卡" oninput="CheckinMap.search(this.value)">
+            </div>
+        </div>
+        <div class="checkin-map-bottom-sheet">
+            <div class="checkin-sheet-handle"><div class="checkin-sheet-handle-bar"></div></div>
+            <div class="checkin-sheet-tabs">
+                <button class="checkin-sheet-tab active" data-tab="nearby" onclick="CheckinMap.switchTab('nearby')">附近</button>
+                <button class="checkin-sheet-tab" data-tab="search" onclick="CheckinMap.switchTab('search')">搜索</button>
+            </div>
+            <div class="checkin-sheet-content" id="checkinSheetContent">
+                <div class="checkin-loading">定位中...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ POI DETAIL ============ -->
+    <div class="poi-detail-overlay" id="poiDetailOverlay" onclick="App.closePoiDetailOnOverlay(event)">
+        <div class="poi-detail-sheet" onclick="event.stopPropagation()">
+            <div class="poi-detail-handle"><div class="poi-detail-handle-bar"></div></div>
+            <div class="poi-detail-header">
+                <div class="poi-detail-title" id="poiDetailTitle"></div>
+                <button class="poi-detail-close" onclick="App.closePoiDetail()">×</button>
+            </div>
+            <div class="poi-detail-tags" id="poiDetailTags"></div>
+            <div class="poi-images-scroll" id="poiDetailImages"></div>
+            <div class="poi-section">
+                <div class="poi-section-title">
+                    <h3>景点介绍</h3>
+                    <span class="poi-ai-badge">🤖 AI介绍</span>
+                </div>
+                <div class="poi-section-text" id="poiDetailDesc"></div>
+            </div>
+            <div class="poi-tips-card">
+                <div class="poi-tips-title">💡 AI出行建议</div>
+                <div class="poi-tips-list" id="poiTipsList"></div>
+            </div>
+            <div class="poi-info-grid">
+                <div class="poi-info-item">
+                    <div class="poi-info-label">⏰ 营业时间</div>
+                    <div class="poi-info-value" id="poiBusinessHours"></div>
+                </div>
+                <div class="poi-info-item">
+                    <div class="poi-info-label">🎫 门票</div>
+                    <div class="poi-info-value" id="poiTicketPrice"></div>
+                </div>
+                <div class="poi-info-item">
+                    <div class="poi-info-label">⭐ 评分</div>
+                    <div class="poi-info-value" id="poiRating">--</div>
+                </div>
+                <div class="poi-info-item">
+                    <div class="poi-info-label">📞 电话</div>
+                    <div class="poi-info-value" id="poiTel">--</div>
+                </div>
+                <div class="poi-info-item" style="grid-column: span 2;">
+                    <div class="poi-info-label">📍 地址</div>
+                    <div class="poi-info-value" id="poiAddress"></div>
+                </div>
+            </div>
+            <!-- 用户吐槽区 -->
+            <div class="poi-roast-section">
+                <div class="poi-section-title">
+                    <h3>真实吐槽 <span class="poi-roast-count" id="poiRoastCount">(0)</span></h3>
+                    <button class="poi-roast-more" id="poiRoastMoreBtn" onclick="PoiDetailExt.viewAll()">查看全部 ›</button>
+                </div>
+                <div class="poi-roast-list" id="poiRoastList">
+                    <div style="text-align:center;padding:20px;color:#BBB;font-size:13px;">加载中...</div>
+                </div>
+            </div>
+            <div class="poi-actions">
+                <button class="poi-action-btn primary" onclick="PoiDetailExt.checkin()">📍 打卡</button>
+                <button class="poi-action-btn" onclick="PoiDetailExt.favorite()">❤️ 收藏</button>
+                <button class="poi-action-btn" onclick="UIRender.showToast('已分享')">📤 分享</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ CHAT MODAL ============ -->
+    <div class="chat-overlay" id="chatOverlay" onclick="ChatModule.closeOnOverlay(event)">
+        <div class="chat-sheet" onclick="event.stopPropagation()">
+            <div class="chat-header">
+                <div class="chat-header-title">
+                    <div class="chat-avatar-mini">🤖</div>
+                    和哇途AI聊聊
+                </div>
+                <button class="chat-close" onclick="ChatModule.close()">×</button>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-quick-replies" id="chatQuickReplies"></div>
+            <div class="chat-input-bar">
+                <input type="text" class="chat-input-field" id="chatInput" placeholder="告诉我你想怎么调整行程..." onkeydown="ChatModule.handleKeydown(event)">
+                <button class="chat-send-btn" onclick="ChatModule.send()">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ SHARE MODAL ============ -->
+    <div class="share-overlay" id="shareOverlay" onclick="ShareModule.closeOnOverlay(event)">
+        <div class="share-sheet" onclick="event.stopPropagation()">
+            <div class="share-title">分享行程</div>
+            <div class="share-options">
+                <div class="share-option" onclick="ShareModule.exportICS()">
+                    <div class="share-icon calendar">📅</div>
+                    <div class="share-label">导出日历</div>
+                </div>
+                <div class="share-option" onclick="ShareModule.copyText()">
+                    <div class="share-icon copy">📋</div>
+                    <div class="share-label">复制文案</div>
+                </div>
+                <div class="share-option" onclick="ShareModule.generatePoster()">
+                    <div class="share-icon image">🖼️</div>
+                    <div class="share-label">生成海报</div>
+                </div>
+                <div class="share-option" onclick="ShareModule.saveToLocal()">
+                    <div class="share-icon" style="background:#FFF0E0;">💾</div>
+                    <div class="share-label">保存行程</div>
+                </div>
+            </div>
+            <button class="share-cancel-btn" onclick="ShareModule.close()">取消</button>
+        </div>
+    </div>
+
+    <!-- ===== SPOT RECORD MODAL (打卡弹窗) ===== -->
+    <div class="record-overlay" id="recordOverlay">
+        <div class="record-panel">
+            <div class="record-header">
+                <button class="record-close" id="recordClose">✕</button>
+                <div class="record-title" id="recordTitle">记录地点</div>
+                <div class="record-placeholder"></div>
+            </div>
+            <div class="record-scroll">
+                <div class="record-spot-meta">
+                    <span class="record-emoji" id="recordEmoji">📍</span>
+                    <div>
+                        <div class="record-spot-name" id="recordSpotName"></div>
+                        <div class="record-time" id="recordTime"></div>
+                    </div>
+                </div>
+
+                <div class="record-section">
+                    <div class="record-section-title">💬 吐槽</div>
+                    <textarea class="record-textarea" id="recordComplaint" placeholder="说说此刻的心情，人多不多？值不值得来？（自动保存）"></textarea>
+                    <div class="record-save-status" id="recordSaveStatus"></div>
+                </div>
+
+                <div class="record-section">
+                    <div class="record-section-title">📸 瞬间</div>
+                    <div class="record-photos" id="recordPhotos">
+                        <label class="record-add-photo" for="recordPhotoInput">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M8 5l2-2h4l2 2"/></svg>
+                        </label>
+                        <input type="file" id="recordPhotoInput" accept="image/*" multiple style="display:none;">
+                    </div>
+                </div>
+
+                <div class="record-section">
+                    <div class="record-section-title">💰 花销</div>
+                    <div class="record-expense-row">
+                        <input type="number" class="record-expense-input" id="recordExpense" placeholder="0" min="0" step="1">
+                        <span class="record-expense-unit">元</span>
+                        <select class="record-expense-cat" id="recordExpenseCat">
+                            <option value="ticket">门票</option>
+                            <option value="food">餐饮</option>
+                            <option value="hotel">住宿</option>
+                            <option value="transport">交通</option>
+                            <option value="shopping">购物</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="record-checkin-btn" id="recordCheckinBtn">
+                    <span>📌 到此一游</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="packing-add-overlay" id="packingAddOverlay" style="display:none;">
+        <div class="packing-add-panel">
+            <div class="pa-header">
+                <span class="pa-title">添加物品</span>
+                <button class="pa-close" id="paClose">✕</button>
+            </div>
+            <div class="pa-search-wrap">
+                <input type="text" id="paSearchInput" class="pa-search" placeholder="搜索物品或输入自定义名称...">
+            </div>
+            <div class="pa-cat-tabs" id="paCatTabs"></div>
+            <div class="pa-suggestions" id="paSuggestions"></div>
+            <div class="pa-custom-row">
+                <input type="text" id="paCustomInput" class="pa-custom-input" placeholder="输入自定义物品名称">
+                <button class="pa-custom-add" id="paCustomAddBtn">添加</button>
+            </div>
+            <div class="pa-selected" id="paSelected"></div>
+            <div class="pa-footer">
+                <button class="pa-cancel-btn" id="paCancel">取消</button>
+                <button class="pa-confirm-btn" id="paConfirm">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="packing-save-overlay" id="packingSaveOverlay" style="display:none;">
+        <div class="packing-save-panel">
+            <div class="ps-header">
+                <span class="ps-title">保存为我的模板</span>
+                <button class="ps-close" id="psClose">✕</button>
+            </div>
+            <input type="text" id="psTplName" class="ps-name-input" placeholder="给模板起个名字，如「日本7日游」">
+            <div class="ps-tips">保存后可在模板栏快速选用</div>
+            <div class="ps-my-tpls" id="psMyTpls"></div>
+            <div class="ps-footer">
+                <button class="ps-cancel-btn" id="psCancel">取消</button>
+                <button class="ps-save-btn" id="psSaveBtn">保存模板</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="time-editor-overlay" id="timeEditorOverlay" style="display:none;">
+        <div class="time-editor-panel">
+            <div class="te-header">
+                <span class="te-title" id="teSpotName">调整时间</span>
+                <button class="te-close" id="teClose">✕</button>
+            </div>
+            <div class="te-date-row" id="teDateLabel"></div>
+            <div class="te-range-display">
+                <span id="teStartLabel">9:00</span>
+                <span class="te-arrow">→</span>
+                <span id="teEndLabel">10:30</span>
+                <span class="te-duration" id="teDuration">1小时30分</span>
+            </div>
+            <div class="te-timeline-wrap">
+                <div class="te-timeline-track" id="teTrack">
+                    <div class="te-timeline-fill" id="teFill"></div>
+                    <div class="te-resize-handle te-handle-start" id="teHandleStart"></div>
+                    <div class="te-resize-handle te-handle-end" id="teHandleEnd"></div>
+                </div>
+                <div class="te-timeline-labels" id="teLabels"></div>
+            </div>
+            <div class="te-quick-btns">
+                <button class="te-quick" onclick="TripDetail.setTeDuration(30)">30分钟</button>
+                <button class="te-quick" onclick="TripDetail.setTeDuration(60)">1小时</button>
+                <button class="te-quick" onclick="TripDetail.setTeDuration(90)">1.5小时</button>
+                <button class="te-quick" onclick="TripDetail.setTeDuration(120)">2小时</button>
+                <button class="te-quick" onclick="TripDetail.setTeDuration(180)">3小时</button>
+            </div>
+            <div class="te-footer">
+                <button class="te-cancel-btn" id="teCancel">取消</button>
+                <button class="te-save-btn" id="teSave">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="map" style="position:fixed;left:-9999px;top:-9999px;width:400px;height:600px;"></div>
+
+<div class="exp-add-overlay" id="expAddOverlay" style="display:none;">
+    <div class="exp-add-panel">
+        <div class="exp-add-header">
+            <span class="exp-add-title" id="expAddTitle">记一笔</span>
+            <button class="exp-add-close" id="expAddClose">✕</button>
+        </div>
+        <div class="exp-add-body">
+            <div class="exp-amount-row">
+                <span class="exp-amount-yuan">¥</span>
+                <input type="number" class="exp-amount-input" id="expAmountInput" placeholder="0" step="0.01" min="0">
+            </div>
+            <div class="exp-cat-grid" id="expCatGrid"></div>
+            <div class="exp-field-row">
+                <label>备注</label>
+                <input type="text" class="exp-note-input" id="expNoteInput" placeholder="例如：西湖游船票" maxlength="30">
+            </div>
+            <div class="exp-field-row">
+                <label>日期</label>
+                <input type="text" class="exp-date-input" id="expDateInput" placeholder="今天">
+            </div>
+        </div>
+        <div class="exp-add-footer">
+            <button class="exp-del-btn" id="expDelBtn" style="display:none;">删除</button>
+            <button class="exp-save-btn" id="expSaveBtn">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ SHORT VIDEO IMMERSIVE BROWSE ============ -->
+<div class="sv-overlay" id="shortVideoOverlay">
+    <div class="sv-top-bar">
+        <button class="sv-close-btn" onclick="ShortVideoModule.close()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+        </button>
+        <div class="sv-tabs">
+            <button class="sv-tab active" data-tab="follow" onclick="ShortVideoModule.switchTab('follow')">关注</button>
+            <button class="sv-tab" data-tab="recommend" onclick="ShortVideoModule.switchTab('recommend')">推荐</button>
+        </div>
+        <div style="width:40px;"></div>
+    </div>
+    <div class="sv-progress-wrapper" id="svProgressWrapper">
+        <div class="sv-progress-bar" id="svProgressBar"></div>
+        <div class="sv-counter" id="svCounter">0/0</div>
+    </div>
+    <div class="sv-like-burst" id="svLikeBurst">❤️</div>
+    <div class="sv-feed" id="svFeed"></div>
+    <div class="sv-hint" id="svHint">上下滑动切换</div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/poi-seed-data.js"></script>
+<script src="shared/ui-kit.js"></script>
+<!-- 社区化升级：Supabase SDK（Phase 1.1 启用）-->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://webapi.amap.com/maps?v=2.0&key=f517b3497f7c40a755d595fd8038156b&plugin=AMap.Geocoder,AMap.PlaceSearch,AMap.Driving,AMap.Walking,AMap.Riding,AMap.Transfer,AMap.AutoComplete,AMap.Weather"></script>
+<script src="js/ai-memory.js"></script>
+<script src="js/map.js"></script>
+<script src="js/pages.js?v=20260713d"></script>
+    <script src="js/shortvideo-ext.js?v=20260705b"></script>
+<script src="js/ai-planner.js?v=20260706a"></script>
+<script src="js/ai-service.js"></script>
+<script src="js/ai-chat.js"></script>
+<script src="js/calendar.js?v=20260704p"></script>
+<script src="js/autocomplete.js"></script>
+<script src="js/drag.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/share.js"></script>
+<script src="js/ui-render.js"></script>
+<script src="js/photo-upload.js?v=20260704"></script>
+<script src="js/drag-sort.js?v=20260704"></script>
+<script src="js/spot-record.js?v=20260704n"></script>
+<script src="js/trip-detail.js?v=20260710c"></script>
+<script src="js/template-preview.js?v=20260704r"></script>
+<script src="js/manual-plan.js"></script>
+<script src="js/canvas-effects.js"></script>
+<!-- ===== 社区化升级：基础层（已就绪）===== -->
+<script src="lib/supabase-client.js"></script>
+<script src="shared/auth.js"></script>
+<script src="shared/author-space.js?v=20260703"></script>
+<script src="shared/points-core.js"></script>
+<script src="shared/trip-storage.js?v=20260703"></script>
+<script src="shared/storage-migrate.js?v=20260706a"></script>
+<script src="lib/amap-helper.js"></script>
+<script src="modules/community/note-editor.js"></script>
+<script src="modules/community/travel-note.js"></script>
+<!-- ===== 社区化升级：功能模块（按 Phase 启用）----- -->
+<script src="modules/creator-system/points-ledger.js"></script>
+<script src="modules/creator-system/level-system.js"></script>
+<script src="modules/creator-system/newbie-tasks.js"></script>
+<script src="modules/pdf-export/pdf-export.js"></script>
+<script src="modules/pdf-export/pdf-preview.js"></script>
+<script src="modules/checkin/checkin-action.js"></script>
+<script src="modules/checkin/checkin-map.js"></script>
+<script src="modules/checkin/roast.js"></script>
+<script src="modules/checkin/poi-topic.js"></script>
+<script src="modules/checkin/moderation.js"></script>
+<script src="modules/creator-system/voting.js"></script>
+<script src="modules/creator-system/items.js"></script>
+<script src="modules/creator-system/advanced-privileges.js"></script>
+<!-- 待开发：按 Phase 启用
+<script src="modules/community/community-page.js"></script>
+<script src="modules/community/trip-template-publish.js"></script>
+<script src="modules/community/user-profile.js"></script>
+<script src="modules/creator-system/newbie-tasks.js"></script>
+<script src="modules/creator-system/voting.js"></script>
+<script src="modules/creator-system/items.js"></script>
+<script src="modules/checkin/checkin-action.js"></script>
+<script src="modules/checkin/roast.js"></script>
+<script src="modules/checkin/poi-topic.js"></script>
+<script src="modules/checkin/moderation.js"></script>
+-->
+<script src="js/app.js?v=20260706d"></script>
+<script src="js/poi-detail-ext.js"></script>
+</body>
+</html>

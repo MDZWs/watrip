@@ -1,0 +1,22 @@
+/* From Uiverse.io by dovatgabriel */ 
+.container {
+  display: flex;
+  gap: 10px;
+}
+
+.card {
+  background-color: #fff;
+  height: 100px;
+  width: 100px;
+  flex: 1;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card:hover {
+  flex: 2;
+  background-color: #b8b8b8;
+}

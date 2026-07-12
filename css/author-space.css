@@ -1,0 +1,405 @@
+/* ===== Author Space (作者空间) ===== */
+/* 覆盖默认 modal 样式 */
+#authorSpaceMask.ui-modal-mask {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+#authorSpaceMask .as-modal {
+  width: 100%;
+  max-width: 420px;
+  height: 88vh;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  background: #fff;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#authorSpaceMask.ui-modal-show .as-modal {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 头部 */
+#authorSpaceMask .as-header {
+  background: #fff;
+  padding: 16px;
+  position: relative;
+  border-bottom: 1px solid #f0f0f3;
+  flex-shrink: 0;
+}
+
+#authorSpaceMask .as-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f0f0f3;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+#authorSpaceMask .as-user-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+#authorSpaceMask .as-avatar-img {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+
+#authorSpaceMask .as-avatar-placeholder {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFB983, #FF8A3D);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+#authorSpaceMask .as-user-text {
+  flex: 1;
+  min-width: 0;
+  padding-top: 4px;
+}
+
+#authorSpaceMask .as-username {
+  font-size: 19px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+#authorSpaceMask .as-user-meta {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 6px;
+}
+
+#authorSpaceMask .as-bio {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+#authorSpaceMask .as-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+#authorSpaceMask .as-tag {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255,138,61,0.1);
+  color: #ff6b00;
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* 统计数据 */
+#authorSpaceMask .as-stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0;
+  border-top: 1px solid #f5f5f7;
+  margin-bottom: 4px;
+}
+
+#authorSpaceMask .as-stat-item {
+  text-align: center;
+  flex: 1;
+}
+
+#authorSpaceMask .as-stat-num {
+  font-size: 17px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+#authorSpaceMask .as-stat-label {
+  font-size: 11px;
+  color: #999;
+}
+
+/* 关注按钮 */
+#authorSpaceMask .as-follow-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #FF8A3D;
+  color: #fff;
+  font-family: inherit;
+}
+
+#authorSpaceMask .as-follow-btn:active {
+  transform: scale(0.98);
+}
+
+#authorSpaceMask .as-follow-btn.following {
+  background: #f0f0f3;
+  color: #666;
+}
+
+/* Tab 切换 */
+#authorSpaceMask .as-tabs {
+  display: flex;
+  border-bottom: 1px solid #f0f0f3;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+#authorSpaceMask .as-tab {
+  flex: 1;
+  padding: 13px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #999;
+  cursor: pointer;
+  position: relative;
+  font-family: inherit;
+  transition: color 0.2s;
+}
+
+#authorSpaceMask .as-tab.active {
+  color: #333;
+  font-weight: 700;
+}
+
+#authorSpaceMask .as-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: #FF8A3D;
+  border-radius: 2px;
+}
+
+/* 内容区域 */
+#authorSpaceMask .as-content {
+  flex: 1;
+  overflow-y: auto;
+  background: #FAFAFA;
+  -webkit-overflow-scrolling: touch;
+}
+
+#authorSpaceMask .as-tab-content {
+  display: none;
+  padding: 12px;
+}
+
+#authorSpaceMask .as-tab-content.active {
+  display: block;
+}
+
+/* 网格布局 */
+#authorSpaceMask .as-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* 卡片 */
+#authorSpaceMask .as-card {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+#authorSpaceMask .as-card:active {
+  transform: scale(0.97);
+}
+
+#authorSpaceMask .as-card-cover {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+#authorSpaceMask .as-card-cover-mask {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+  pointer-events: none;
+}
+
+#authorSpaceMask .as-card-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(255,138,61,0.9);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  z-index: 2;
+}
+
+#authorSpaceMask .as-card-tag {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255,255,255,0.85);
+  color: #333;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  z-index: 2;
+}
+
+#authorSpaceMask .as-card-cover-info {
+  position: absolute;
+  bottom: 8px;
+  left: 10px;
+  right: 10px;
+  color: #fff;
+  z-index: 2;
+}
+
+#authorSpaceMask .as-card-dest {
+  font-size: 14px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#authorSpaceMask .as-card-days {
+  font-size: 11px;
+  opacity: 0.9;
+  margin-top: 2px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+#authorSpaceMask .as-card-body {
+  padding: 8px 10px 10px;
+}
+
+#authorSpaceMask .as-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 36px;
+}
+
+#authorSpaceMask .as-card-desc {
+  font-size: 11px;
+  color: #999;
+  margin-top: 4px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+#authorSpaceMask .as-card-stats {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  color: #999;
+  margin-top: 6px;
+}
+
+#authorSpaceMask .as-collection-emoji {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  opacity: 0.8;
+}
+
+/* 空状态 */
+#authorSpaceMask .as-empty {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+#authorSpaceMask .as-empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+#authorSpaceMask .as-empty-text {
+  font-size: 13px;
+  color: #999;
+}
+
+/* 适配小屏幕 */
+@media (max-width: 360px) {
+  #authorSpaceMask .as-avatar-img,
+  #authorSpaceMask .as-avatar-placeholder {
+    width: 60px;
+    height: 60px;
+  }
+  #authorSpaceMask .as-username {
+    font-size: 17px;
+  }
+  #authorSpaceMask .as-grid {
+    gap: 8px;
+  }
+}

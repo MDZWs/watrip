@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>嵌入式组件预览</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+      padding: 40px 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 40px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 30px;
+    }
+    .component-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .component-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    .component-preview {
+      min-height: 200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 20px;
+      overflow: auto;
+    }
+    .component-link {
+      display: inline-block;
+      margin-top: 10px;
+      color: #007AFF;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .component-link:hover {
+      text-decoration: underline;
+    }
+    iframe {
+      border: none;
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>嵌入式组件库预览</h1>
+  <div class="container">
+    <div class="component-card">
+      <div class="component-title">伸缩卡片 (card.html)</div>
+      <div class="component-preview">
+        <iframe src="card.html" width="400" height="180"></iframe>
+      </div>
+      <a href="card.html" target="_blank" class="component-link">在新窗口打开 →</a>
+    </div>
+    <div class="component-card">
+      <div class="component-title">机票卡片 (card-static.html)</div>
+      <div class="component-preview">
+        <iframe src="card-static.html" width="380" height="220"></iframe>
+      </div>
+      <a href="card-static.html" target="_blank" class="component-link">在新窗口打开 →</a>
+    </div>
+    <div class="component-card">
+      <div class="component-title">城市分类 (city-sort.html)</div>
+      <div class="component-preview">
+        <iframe src="city-sort.html" width="250" height="310"></iframe>
+      </div>
+      <a href="city-sort.html" target="_blank" class="component-link">在新窗口打开 →</a>
+    </div>
+    <div class="component-card">
+      <div class="component-title">翻转卡片 (community-card.html)</div>
+      <div class="component-preview">
+        <iframe src="community-card.html" width="250" height="310"></iframe>
+      </div>
+      <a href="community-card.html" target="_blank" class="component-link">在新窗口打开 →</a>
+    </div>
+    <div class="component-card">
+      <div class="component-title">社区卡片 (community-card2.html)</div>
+      <div class="component-preview" style="background: #1a1a2e;">
+        <iframe src="community-card2.html" width="320" height="320"></iframe>
+      </div>
+      <a href="community-card2.html" target="_blank" class="component-link">在新窗口打开 →</a>
+    </div>
+    <div class="component-card">
+      <div class="component-title">记账计算器 (jizhang.html)</div>
+      <div class="component-preview">
+        <iframe src="jizhang.html" width="240" height="300"></iframe>
+      </div>
+      <a href="jizhang.html" target="_blank" class="component-link">在新窗口打开 →</a>
+    </div>
+    <div class="component-card">
+      <div class="component-title">加载动画 (loading.html)</div>
+      <div class="component-preview" style="background: #333;">
+        <iframe src="loading.html" width="100" height="80"></iframe>
+      </div>
+      <a href="loading.html" target="_blank" class="component-link">在新窗口打开 →</a>
+    </div>
+    <div class="component-card">
+      <div class="component-title">记忆卡片 (memory.html)</div>
+      <div class="component-preview">
+        <iframe src="memory.html" width="340" height="250"></iframe>
+      </div>
+      <a href="memory.html" target="_blank" class="component-link">在新窗口打开 →</a>
+    </div>
+    <div class="component-card">
+      <div class="component-title">3D卡片 (plan-see.html)</div>
+      <div class="component-preview">
+        <iframe src="plan-see.html" width="340" height="300"></iframe>
+      </div>
+      <a href="plan-see.html" target="_blank" class="component-link">在新窗口打开 →</a>
+    </div>
+    <div class="component-card">
+      <div class="component-title">钱包 (qianbao.html)</div>
+      <div class="component-preview">
+        <iframe src="qianbao.html" width="340" height="300"></iframe>
+      </div>
+      <a href="qianbao.html" target="_blank" class="component-link">在新窗口打开 →</a>
+    </div>
+    <div class="component-card">
+      <div class="component-title">商品卡片 (qingdan.html)</div>
+      <div class="component-preview">
+        <iframe src="qingdan.html" width="240" height="380"></iframe>
+      </div>
+      <a href="qingdan.html" target="_blank" class="component-link">在新窗口打开 →</a>
+    </div>
+    <div class="component-card">
+      <div class="component-title">导航按钮 (tap.html)</div>
+      <div class="component-preview">
+        <iframe src="tap.html" width="380" height="100"></iframe>
+      </div>
+      <a href="tap.html" target="_blank" class="component-link">在新窗口打开 →</a>
+    </div>
+    <div class="component-card">
+      <div class="component-title">反馈弹窗 (tucao.html)</div>
+      <div class="component-preview" style="background: #f0f0f0;">
+        <iframe src="tucao.html" width="700" height="400"></iframe>
+      </div>
+      <a href="tucao.html" target="_blank" class="component-link">在新窗口打开 →</a>
+    </div>
+    <div class="component-card">
+      <div class="component-title">天气卡片 (xinzhi-weather.html)</div>
+      <div class="component-preview">
+        <iframe src="xinzhi-weather.html" width="320" height="240"></iframe>
+      </div>
+      <a href="xinzhi-weather.html" target="_blank" class="component-link">在新窗口打开 →</a>
+    </div>
+  </div>
+</body>
+</html>

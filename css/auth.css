@@ -1,0 +1,141 @@
+/* 认证模态框样式 */
+/* 文档：specs/community-platform-upgrade/开发规范.md */
+
+.auth-modal-mask {
+  z-index: 10001;
+  pointer-events: none;
+}
+.auth-modal-mask.ui-modal-show {
+  pointer-events: auto;
+}
+
+.auth-modal {
+  background: #fff;
+  border-radius: 16px;
+  width: 86%;
+  max-width: 360px;
+  overflow: hidden;
+  position: relative;
+  transform: scale(0.92);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ui-modal-show .auth-modal { transform: scale(1); }
+
+/* Tab 切换 */
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid #f0f0f0;
+  margin-top: 8px;
+}
+.auth-tab {
+  flex: 1;
+  padding: 14px 0;
+  border: none;
+  background: none;
+  font-size: 15px;
+  color: #999;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+.auth-tab.active {
+  color: #1989fa;
+  font-weight: 600;
+}
+.auth-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 3px;
+  border-radius: 2px;
+  background: #1989fa;
+}
+
+/* 表单容器 */
+.auth-content {
+  padding: 24px 24px 8px;
+}
+.auth-form {
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+}
+.auth-form.active {
+  display: flex;
+}
+
+/* 输入框 */
+.auth-input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 15px;
+  color: #333;
+  background: #fafafa;
+  transition: border-color 0.2s, background 0.2s;
+  box-sizing: border-box;
+}
+.auth-input:focus {
+  outline: none;
+  border-color: #1989fa;
+  background: #fff;
+}
+.auth-input::placeholder { color: #bbb; }
+
+/* 提交按钮 */
+.auth-submit {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1989fa, #0d6efd);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.auth-submit:active { transform: scale(0.98); }
+.auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* 底部提示 */
+.auth-footer {
+  padding: 14px 24px 20px;
+  font-size: 12px;
+  color: #aaa;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* 关闭按钮 */
+.auth-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  font-size: 24px;
+  color: #ccc;
+  cursor: pointer;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.auth-close:hover { color: #999; }
+
+/* ===== 登录态：顶部头像样式 ===== */
+.home-avatar.logged-in {
+  background: linear-gradient(135deg, #1989fa, #0d6efd);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(25, 137, 250, 0.3);
+}

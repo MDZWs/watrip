@@ -1,0 +1,249 @@
+/* ============================================================ */
+/* RESULT PAGE - 地图 + 底部抽屉                                  */
+/* ============================================================ */
+#resultPage {
+    background: var(--bg);
+    position: relative;
+}
+
+.map-wrap {
+    flex: 1;
+    position: relative;
+    background: #E8E8E8;
+    overflow: hidden;
+    min-height: 0;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+.map-top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 55px 16px 16px;
+    z-index: 10;
+    background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 100%);
+}
+
+.map-back-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: all 0.2s;
+    font-size: 24px;
+    color: var(--text-primary);
+}
+.map-back-btn:active { transform: scale(0.92); }
+
+.map-top-right {
+    display: flex;
+    gap: 10px;
+}
+.map-icon-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: all 0.2s;
+    color: var(--text-primary);
+}
+.map-icon-btn:active { transform: scale(0.92); }
+.map-icon-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+/* 地图视图切换 */
+.map-view-switch {
+    position: absolute;
+    bottom: calc(50% + 30px);
+    left: 16px;
+    display: flex;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    padding: 4px;
+    border-radius: 999px;
+    box-shadow: var(--shadow-md);
+    z-index: 10;
+    gap: 2px;
+}
+
+.view-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+.view-btn:active { transform: scale(0.96); }
+.view-btn.active {
+    background: #000;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.view-btn span { font-size: 16px; }
+
+/* 全屏按钮 */
+.fullscreen-btn {
+    position: absolute;
+    bottom: calc(50% + 30px);
+    right: 16px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    z-index: 10;
+}
+.fullscreen-btn:active { transform: scale(0.92); }
+.fullscreen-btn svg { width: 22px; height: 22px; fill: none; stroke: var(--text-primary); stroke-width: 2; }
+
+/* 定位进度条 */
+.geocode-progress {
+    position: absolute;
+    top: 110px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 15;
+    display: none;
+    align-items: center;
+    gap: 10px;
+}
+.geocode-progress.show { display: flex; }
+.geocode-progress .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 底部抽屉 */
+.bottom-drawer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    border-radius: 28px 28px 0 0;
+    z-index: 20;
+    max-height: 50%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -6px 32px rgba(0,0,0,0.1);
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bottom-drawer.expanded { max-height: 85%; }
+
+.drawer-handle {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 10px 0 6px;
+    flex-shrink: 0;
+    cursor: grab;
+}
+.drawer-handle:active { cursor: grabbing; }
+
+.drawer-handle-bar {
+    width: 42px;
+    height: 5px;
+    background: #D1D1D6;
+    border-radius: 3px;
+}
+
+/* Tab 头部 - 总览/日期 */
+.drawer-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 4px 20px 14px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    -webkit-overflow-scrolling: touch;
+}
+.drawer-tabs::-webkit-scrollbar { display: none; }
+
+.drawer-tab {
+    flex-shrink: 0;
+    padding: 8px 18px;
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    position: relative;
+}
+.drawer-tab:active { transform: scale(0.96); }
+.drawer-tab.active {
+    color: var(--text-primary);
+    font-weight: 800;
+}
+.drawer-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 4px;
+    background: var(--brand);
+    border-radius: 2px;
+}
+
+.drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 24px;
+    -webkit-overflow-scrolling: touch;
+}
+.drawer-content::-webkit-scrollbar { width: 3px; }
+.drawer-content::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
