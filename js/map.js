@@ -12,6 +12,18 @@ const MapModule = {
     cityCenterCache: new Map(),
     initPromise: null,
     fallbackMode: false,
+    _amapError: false,
+
+    _timeout(ms, fallbackValue) {
+        return new Promise(resolve => setTimeout(() => resolve(fallbackValue), ms));
+    },
+
+    _enableFallback() {
+        if (this.fallbackMode) return;
+        console.warn('[MapModule] 高德地图API不可用，启用本地POI降级模式');
+        this.fallbackMode = true;
+        this._amapError = true;
+    },
 
     init() {
         if (this.initPromise) return this.initPromise;
@@ -22,36 +34,68 @@ const MapModule = {
             
             let attempts = 0;
             const maxAttempts = 50;
+            let pluginTimeout = null;
+            
             const checkAMap = () => {
                 if (typeof AMap !== 'undefined') {
-                    this.map = new AMap.Map('map', {
-                        zoom: 12,
-                        center: [CONFIG.DEFAULT_CENTER.lng, CONFIG.DEFAULT_CENTER.lat],
-                        mapStyle: 'amap://styles/normal',
-                        features: ['bg', 'road', 'building', 'point'],
-                        viewMode: '2D',
-                    });
-                    
-                    AMap.plugin(['AMap.PlaceSearch', 'AMap.Driving', 'AMap.Walking', 'AMap.Riding', 'AMap.Transfer', 'AMap.Geocoder'], () => {
-                        this.placeSearch = new AMap.PlaceSearch({
-                            pageSize: 10,
-                            pageIndex: 1,
-                            extensions: 'all',
-                            city: '全国',
-                            citylimit: false,
+                    try {
+                        this.map = new AMap.Map('map', {
+                            zoom: 12,
+                            center: [CONFIG.DEFAULT_CENTER.lng, CONFIG.DEFAULT_CENTER.lat],
+                            mapStyle: 'amap://styles/normal',
+                            features: ['bg', 'road', 'building', 'point'],
+                            viewMode: '2D',
                         });
-                        this.driving = new AMap.Driving({ map: null, autoFitView: false, policy: AMap.DrivingPolicy.LEAST_TIME });
-                        this.walking = new AMap.Walking({ map: null, autoFitView: false });
-                        this.riding = new AMap.Riding({ map: null, autoFitView: false, policy: AMap.RidingPolicy.FASTEST });
-                        this.transfer = new AMap.Transfer({ map: null, autoFitView: false, city: '全国' });
-                        this.geocoder = new AMap.Geocoder({ city: '全国' });
-                        resolve(this.map);
-                    });
+
+                        this.map.on('error', () => {
+                            this._enableFallback();
+                        });
+                    } catch (e) {
+                        this._enableFallback();
+                        resolve(null);
+                        return;
+                    }
+                    
+                    pluginTimeout = setTimeout(() => {
+                        this._enableFallback();
+                        resolve(null);
+                    }, 5000);
+
+                    try {
+                        AMap.plugin(['AMap.PlaceSearch', 'AMap.Driving', 'AMap.Walking', 'AMap.Riding', 'AMap.Transfer', 'AMap.Geocoder'], () => {
+                            if (pluginTimeout) clearTimeout(pluginTimeout);
+                            if (this.fallbackMode) {
+                                resolve(null);
+                                return;
+                            }
+                            try {
+                                this.placeSearch = new AMap.PlaceSearch({
+                                    pageSize: 10,
+                                    pageIndex: 1,
+                                    extensions: 'all',
+                                    city: '全国',
+                                    citylimit: false,
+                                });
+                                this.driving = new AMap.Driving({ map: null, autoFitView: false, policy: AMap.DrivingPolicy.LEAST_TIME });
+                                this.walking = new AMap.Walking({ map: null, autoFitView: false });
+                                this.riding = new AMap.Riding({ map: null, autoFitView: false, policy: AMap.RidingPolicy.FASTEST });
+                                this.transfer = new AMap.Transfer({ map: null, autoFitView: false, city: '全国' });
+                                this.geocoder = new AMap.Geocoder({ city: '全国' });
+                                resolve(this.map);
+                            } catch (e) {
+                                this._enableFallback();
+                                resolve(null);
+                            }
+                        });
+                    } catch (e) {
+                        if (pluginTimeout) clearTimeout(pluginTimeout);
+                        this._enableFallback();
+                        resolve(null);
+                    }
                 } else {
                     attempts++;
                     if (attempts >= maxAttempts) {
-                        console.warn('[MapModule] 高德SDK加载失败，启用本地POI降级模式');
-                        this.fallbackMode = true;
+                        this._enableFallback();
                         resolve(null);
                         return;
                     }
@@ -149,19 +193,33 @@ const MapModule = {
             return center;
         }
         
-        return new Promise((resolve) => {
-            this.geocoder.getLocation(city, (status, result) => {
-                if (status === 'complete' && result.geocodes && result.geocodes.length > 0) {
-                    const loc = result.geocodes[0].location;
-                    const center = { lng: parseFloat(loc.lng), lat: parseFloat(loc.lat) };
-                    this.cityCenterCache.set(city, center);
-                    resolve(center);
-                } else {
-                    this.cityCenterCache.set(city, null);
-                    resolve(null);
+        return Promise.race([
+            new Promise((resolve) => {
+                try {
+                    this.geocoder.getLocation(city, (status, result) => {
+                        if (status === 'complete' && result.geocodes && result.geocodes.length > 0) {
+                            const loc = result.geocodes[0].location;
+                            const center = { lng: parseFloat(loc.lng), lat: parseFloat(loc.lat) };
+                            this.cityCenterCache.set(city, center);
+                            resolve(center);
+                        } else {
+                            this.cityCenterCache.set(city, null);
+                            resolve(null);
+                        }
+                    });
+                } catch (e) {
+                    this._enableFallback();
+                    const fbCenter = typeof PoiSeedData !== 'undefined' ? PoiSeedData.getCityCenter(city) : null;
+                    this.cityCenterCache.set(city, fbCenter);
+                    resolve(fbCenter);
                 }
-            });
-        });
+            }),
+            new Promise(resolve => setTimeout(() => {
+                const fbCenter = typeof PoiSeedData !== 'undefined' ? PoiSeedData.getCityCenter(city) : null;
+                this.cityCenterCache.set(city, fbCenter);
+                resolve(fbCenter);
+            }, 5000))
+        ]);
     },
 
     _calcDistance(lng1, lat1, lng2, lat2) {
@@ -341,84 +399,102 @@ const MapModule = {
             return pois;
         }
 
-        const cityCenter = await this.getCityCenter(city);
+        try {
+            const cityCenter = await this.getCityCenter(city);
 
-        const categories = [
-            { keywords: '景点|风景区|名胜古迹|博物馆|古镇', type: '风景名胜', weight: 3 },
-            { keywords: '美食|小吃|餐厅|特色菜', type: '餐饮服务', weight: 2 },
-            { keywords: '商业街|购物中心|步行街', type: '购物服务', weight: 1 },
-            { keywords: '公园|动物园|植物园', type: '风景名胜', weight: 2 },
-        ];
+            let prefKeywords = [];
+            if (prefs.includes('food')) prefKeywords = ['美食街|特色餐厅|老字号|小吃'];
+            if (prefs.includes('nature')) prefKeywords = ['风景区|自然景观|山水|公园'];
+            if (prefs.includes('photo')) prefKeywords = ['网红打卡|拍照胜地|观景台'];
+            if (prefs.includes('history')) prefKeywords = ['博物馆|古迹|历史遗址|古镇'];
+            if (prefs.includes('shopping')) prefKeywords = ['商业街|购物中心|步行街'];
+            if (prefs.includes('citywalk')) prefKeywords = ['老街|步行街|历史街区|胡同'];
+            if (prefs.includes('niche')) prefKeywords = ['小众景点|文艺街区|创意园'];
+            if (prefs.includes('family')) prefKeywords = ['亲子|游乐园|动物园|海洋馆'];
+            if (prefs.includes('art')) prefKeywords = ['美术馆|艺术馆|展览|剧院'];
+            if (prefKeywords.length === 0) prefKeywords = ['必游景点|著名景点|热门景点'];
 
-        let prefKeywords = [];
-        if (prefs.includes('food')) prefKeywords = ['美食街|特色餐厅|老字号|小吃'];
-        if (prefs.includes('nature')) prefKeywords = ['风景区|自然景观|山水|公园'];
-        if (prefs.includes('photo')) prefKeywords = ['网红打卡|拍照胜地|观景台'];
-        if (prefs.includes('history')) prefKeywords = ['博物馆|古迹|历史遗址|古镇'];
-        if (prefs.includes('shopping')) prefKeywords = ['商业街|购物中心|步行街'];
-        if (prefs.includes('citywalk')) prefKeywords = ['老街|步行街|历史街区|胡同'];
-        if (prefs.includes('niche')) prefKeywords = ['小众景点|文艺街区|创意园'];
-        if (prefs.includes('family')) prefKeywords = ['亲子|游乐园|动物园|海洋馆'];
-        if (prefs.includes('art')) prefKeywords = ['美术馆|艺术馆|展览|剧院'];
-        if (prefKeywords.length === 0) prefKeywords = ['必游景点|著名景点|热门景点'];
+            const allPois = [];
+            const seenNames = new Set();
 
-        const allPois = [];
-        const seenNames = new Set();
-
-        const poiSearch = new AMap.PlaceSearch({
-            pageSize: 20,
-            pageIndex: 1,
-            extensions: 'all',
-            city: city,
-            citylimit: true,
-        });
-
-        const searchKeyword = (kw) => new Promise((resolve) => {
-            poiSearch.search(kw, (status, result) => {
-                if (status === 'complete' && result.poiList && result.poiList.pois) {
-                    result.poiList.pois.forEach(poi => {
-                        if (poi.name && !seenNames.has(poi.name) && poi.location) {
-                            seenNames.add(poi.name);
-                            allPois.push({
-                                name: poi.name,
-                                address: poi.address || '',
-                                lng: poi.location.lng,
-                                lat: poi.location.lat,
-                                type: poi.type || '',
-                                rating: poi.biz_ext && poi.biz_ext.rating ? parseFloat(poi.biz_ext.rating) : 0,
-                                cost: poi.biz_ext && poi.biz_ext.cost ? parseFloat(poi.biz_ext.cost) : 0,
-                                tel: poi.tel || '',
-                            });
-                        }
-                    });
-                }
-                resolve();
-            });
-        });
-
-        const searches = [];
-        prefKeywords.forEach(kw => searches.push(searchKeyword(kw)));
-        searches.push(searchKeyword(`${city}必去景点`));
-        searches.push(searchKeyword(`${city}热门景点`));
-
-        await Promise.all(searches);
-
-        let filtered = allPois;
-        if (cityCenter) {
-            filtered = allPois.filter(p => {
-                const dist = this._calcDistance(cityCenter.lng, cityCenter.lat, p.lng, p.lat);
-                return dist <= 150;
-            });
-            if (filtered.length < 3) {
-                console.warn('[MapModule] 有效POI数量过少，可能城市名不正确：', city);
+            let poiSearch;
+            try {
+                poiSearch = new AMap.PlaceSearch({
+                    pageSize: 20,
+                    pageIndex: 1,
+                    extensions: 'all',
+                    city: city,
+                    citylimit: true,
+                });
+            } catch (e) {
+                this._enableFallback();
+                const pois = typeof PoiSeedData !== 'undefined' ? PoiSeedData.getCityPOIs(city, prefs) : [];
+                this.geocodeCache.set(cacheKey, pois);
+                return pois;
             }
+
+            const searchKeyword = (kw) => Promise.race([
+                new Promise((resolve) => {
+                    try {
+                        poiSearch.search(kw, (status, result) => {
+                            if (status === 'complete' && result.poiList && result.poiList.pois) {
+                                result.poiList.pois.forEach(poi => {
+                                    if (poi.name && !seenNames.has(poi.name) && poi.location) {
+                                        seenNames.add(poi.name);
+                                        allPois.push({
+                                            name: poi.name,
+                                            address: poi.address || '',
+                                            lng: poi.location.lng,
+                                            lat: poi.location.lat,
+                                            type: poi.type || '',
+                                            rating: poi.biz_ext && poi.biz_ext.rating ? parseFloat(poi.biz_ext.rating) : 0,
+                                            cost: poi.biz_ext && poi.biz_ext.cost ? parseFloat(poi.biz_ext.cost) : 0,
+                                            tel: poi.tel || '',
+                                        });
+                                    }
+                                });
+                            }
+                            resolve();
+                        });
+                    } catch (e) {
+                        resolve();
+                    }
+                }),
+                new Promise(resolve => setTimeout(resolve, 4000))
+            ]);
+
+            const searches = [];
+            prefKeywords.forEach(kw => searches.push(searchKeyword(kw)));
+            searches.push(searchKeyword(`${city}必去景点`));
+            searches.push(searchKeyword(`${city}热门景点`));
+
+            await Promise.all(searches);
+
+            let filtered = allPois;
+            if (cityCenter) {
+                filtered = allPois.filter(p => {
+                    const dist = this._calcDistance(cityCenter.lng, cityCenter.lat, p.lng, p.lat);
+                    return dist <= 150;
+                });
+            }
+
+            if (filtered.length < 3) {
+                const fbPois = typeof PoiSeedData !== 'undefined' ? PoiSeedData.getCityPOIs(city, prefs) : [];
+                this.geocodeCache.set(cacheKey, fbPois);
+                return fbPois;
+            }
+
+            filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+
+            const result = filtered.slice(0, 40);
+            this.geocodeCache.set(cacheKey, result);
+            return result;
+        } catch (e) {
+            console.warn('[MapModule] searchCityPOIs失败，使用兜底数据:', e);
+            const pois = typeof PoiSeedData !== 'undefined' ? PoiSeedData.getCityPOIs(city, prefs) : [];
+            this.geocodeCache.set(cacheKey, pois);
+            return pois;
         }
-
-        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-
-        const result = filtered.slice(0, 40);
-        this.geocodeCache.set(cacheKey, result);
-        return result;
     },
 
     async searchNearbyPOIs(centerLng, centerLat, category, radius = 20000) {

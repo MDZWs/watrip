@@ -870,20 +870,7 @@ const App = {
         if (this.destinations.length === 0) return;
 
         const btn = document.getElementById('smartBtn');
-        const btnText = document.getElementById('smartBtnText');
         btn.disabled = true;
-
-        const needAsk = this._needAskQuestions();
-        if (needAsk) {
-            this._showAskModal(needAsk, () => {
-                btn.disabled = false;
-                this._doSmartPlan();
-            }, () => {
-                btn.disabled = false;
-                this._doSmartPlan();
-            });
-            return;
-        }
 
         this._doSmartPlan();
     },
@@ -1054,7 +1041,8 @@ const App = {
     async _doSmartPlan() {
         const btn = document.getElementById('smartBtn');
         const overlay = document.getElementById('loadingOverlay');
-        btn.disabled = false;
+        overlay.classList.add('show');
+        btn.disabled = true;
 
         // 计算天数 & 生成思考步骤
         const days = this.startDate && this.endDate
@@ -1084,11 +1072,33 @@ const App = {
         } catch(e) { console.warn('thinking chain error', e); }
 
         try {
-            await MapModule.init();
+            try {
+                await Promise.race([
+                    MapModule.init(),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('地图初始化超时')), 5000))
+                ]);
+            } catch (mapErr) {
+                console.warn('地图初始化失败，继续生成行程:', mapErr);
+                MapModule._enableFallback();
+            }
 
-            const trip = await AIPlanner.generateTrip(
-                this.destinations, days, allPrefs, this.startDate, this.endDate
-            );
+            let trip;
+            try {
+                trip = await Promise.race([
+                    AIPlanner.generateTrip(
+                        this.destinations, days, allPrefs, this.startDate, this.endDate
+                    ),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('行程生成超时')), 20000))
+                ]);
+            } catch (genErr) {
+                console.warn('AI生成超时/失败，使用兜底行程数据:', genErr);
+                const poisByCity = {};
+                for (const dest of this.destinations) {
+                    const fallbackPois = typeof PoiSeedData !== 'undefined' ? PoiSeedData.getCityPOIs(dest, allPrefs) : [];
+                    poisByCity[dest] = fallbackPois;
+                }
+                trip = AIPlanner.buildMultiCityTripFromPOIs(poisByCity, this.destinations, days, this.startDate);
+            }
             this.tripData = trip;
             trip.destination = this.destinations[0] || trip.dayPlans?.[0]?.city || '';
             trip.days = days;
@@ -1125,7 +1135,7 @@ const App = {
             setTimeout(() => {
                 overlay.classList.remove('show');
                 btn.disabled = false;
-                btnText.textContent = '重新规划';
+                btn.textContent = '✨ 智能规划';
                 this.pageStack.push('trip-detail');
                 TripDetail.open(trip, tripId);
             }, 600);

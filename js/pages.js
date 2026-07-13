@@ -513,13 +513,13 @@ const HomeModule = {
     render() {
         this.renderGreeting();
         this.renderTravelStats();
-        this.renderWidgets();
         this.renderWeather();
         this.renderCurrentTripCard();
         this.renderMemoryStats();
         this.renderCountdown();
         this.renderTodayPlan();
         this.renderQuickCheckin();
+        this.renderWidgets();
     },
 
     renderMemoryStats() {
@@ -661,7 +661,6 @@ const HomeModule = {
             };
         }
 
-        widget.style.display = 'block';
         widget.style.cursor = 'pointer';
         widget.onclick = () => this.openWeatherPlanner();
         const icon = this._weatherIcon(weather.text_day || weather.text || '晴');
@@ -858,13 +857,12 @@ const HomeModule = {
         const defaults = ['stats', 'trips', 'countdown', 'today', 'checkin', 'memory', 'weather'];
         try {
             const raw = localStorage.getItem('home_widgets');
-            // 没有保存过配置时，写入默认配置并返回
             if (!raw) {
                 localStorage.setItem('home_widgets', JSON.stringify(defaults));
                 return defaults;
             }
             const saved = JSON.parse(raw);
-            if (!Array.isArray(saved) || saved.length === 0) return defaults;
+            if (!Array.isArray(saved)) return defaults;
             return saved;
         } catch(e) {
             return defaults;
@@ -963,8 +961,8 @@ const HomeModule = {
                     item.querySelector('.wp-toggle').textContent = '✓ 已添加';
                 }
                 this.saveWidgetSettings(widgets);
-                this.renderWidgets();
                 this.refreshVisibleWidgets();
+                this.renderWidgets();
             };
         });
     },
@@ -1059,11 +1057,14 @@ const HomeModule = {
         });
 
         if (!nearest) {
-            widget.style.display = 'none';
+            labelEl.textContent = '暂无行程';
+            titleEl.textContent = '去规划一段旅程吧';
+            metaEl.textContent = '';
+            daysEl.innerHTML = `<div class="ed-num">--</div><div class="ed-unit">天</div>`;
+            widget.dataset.tripId = '';
             return;
         }
 
-        widget.style.display = '';
         const { trip, sd, ed, isOngoing } = nearest;
         const dest = trip.destination || trip.dayPlans?.[0]?.city || '未知目的地';
         const days = trip.days || trip.dayPlans?.length || 1;
@@ -1122,12 +1123,11 @@ const HomeModule = {
         });
 
         if (todayItems.length === 0) {
-            widget.style.display = 'none';
             contentEl.innerHTML = '<div class="envo-empty">今天没有安排景点，去规划一段旅程吧</div>';
+            widget.dataset.tripId = '';
             return;
         }
 
-        widget.style.display = '';
         todayItems.sort((a, b) => a.time.localeCompare(b.time));
         const showItems = todayItems.slice(0, 4);
         contentEl.innerHTML = showItems.map(item => `
@@ -1179,11 +1179,11 @@ const HomeModule = {
         });
 
         if (pendingItems.length === 0) {
-            widget.style.display = 'none';
+            subEl.textContent = '今天没有需要打卡的景点';
+            widget.dataset.tripId = '';
             return;
         }
 
-        widget.style.display = '';
         const first = pendingItems[0];
         subEl.textContent = pendingItems.length === 1
             ? `${first.city} · ${first.name}`
